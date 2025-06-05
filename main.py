@@ -29,6 +29,7 @@ st.markdown(
     }
     section[data-testid="stSidebar"] {
         background-color: #001C53;
+        width:200px;
     }
     
     .st-key-left .stButton button {
