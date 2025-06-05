@@ -77,7 +77,7 @@ with st.sidebar:
             st.markdown('<div style="font-size:12px ;color: white; ">New Version not Available</div>',unsafe_allow_html=True)
         else:
             st.markdown('<div style="font-size:12px ;color: white; ">New Version Available</div>',unsafe_allow_html=True)
-                if st.button('Update'):
+            if st.button('Update'):
                 zip_url = f"https://github.com/Analyst-FPNA/GIS-Cleaning/archive/refs/heads/main.zip"
 
                 response = requests.get(zip_url)
