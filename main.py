@@ -75,7 +75,9 @@ with st.sidebar:
         remote_version = match.group(1)
         if remote_version == version:
             st.markdown('<div style="font-size:12px ;color: white; ">New Version not Available</div>',unsafe_allow_html=True)
-            if st.button('Update'):
+        else:
+            st.markdown('<div style="font-size:12px ;color: white; ">New Version Available</div>',unsafe_allow_html=True)
+                if st.button('Update'):
                 zip_url = f"https://github.com/Analyst-FPNA/GIS-Cleaning/archive/refs/heads/main.zip"
 
                 response = requests.get(zip_url)
@@ -99,8 +101,6 @@ with st.sidebar:
                         with open(relative_path, "wb") as f:
                             f.write(z.read(member))
                 
-        else:
-            st.markdown('<div style="font-size:12px ;color: white; ">New Version Available</div>',unsafe_allow_html=True)
             
     except (requests.ConnectionError, requests.Timeout):
         st.markdown('<div style="font-size:12px ;color: white; ">Offline</div>',unsafe_allow_html=True)
