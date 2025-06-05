@@ -5,7 +5,7 @@ import io
 import os
 import zipfile
 
-version = 'v2.0.0'
+version = 'v2.0.1'
 st.set_page_config(layout="wide")
 
 page_1 = st.Page("Tools/gis-cleaning.py", title="GIS-CLeaning")
