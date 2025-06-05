@@ -1,6 +1,0 @@
-[theme]
-primaryColor = "#250000" # Warna utama
-backgroundColor = "#250000" # Warna latar belakang
-secondaryBackgroundColor = "#982B1C" # Warna latar belakang sekunder
-textColor = "FFF5E4" # Warna teks
-font = "sans serif" # Jenis font
