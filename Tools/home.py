@@ -14,7 +14,7 @@ st.markdown("""
         """, unsafe_allow_html=True)
 
 # Membaca gambar menggunakan PIL
-image = Image.open("Pict Home.png")  # Ganti dengan path file gambarmu
+image = Image.open("etc/Pict Home.png")  # Ganti dengan path file gambarmu
 
 col = st.columns([4,1])
 with col[0]:
