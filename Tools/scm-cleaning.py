@@ -101,6 +101,7 @@ with col[1]:
     with st.container(border=True):
         st.write('')
         if st.session_state.process:
+            st.session_state.process = False
             try:
                 with st.spinner('Data sedang diproses...'):
                     selected_option = st.session_state.selected_option
