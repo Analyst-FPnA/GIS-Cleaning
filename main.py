@@ -29,7 +29,7 @@ st.markdown(
     }
     section[data-testid="stSidebar"] {
         background-color: #001C53;
-        width:200px;
+        width:200;
     }
     
     .st-key-left .stButton button {
@@ -47,10 +47,10 @@ st.markdown(
 
 
 with st.sidebar:
-    st.markdown('<h2 style="color: white; font-weight: bold;margin:0; padding:0;">FPNA-Analyst</h2>',unsafe_allow_html=True)
+    st.markdown('<h1 style="color: white; font-weight: bold;margin:0; padding:0;">Flowbit 🚀</h1>',unsafe_allow_html=True)
     st.markdown(f'<div style="font-size:12px ;color: white; font-weight: bold; margin:0; padding:0;">{version}</div>',unsafe_allow_html=True)
 
-    st.write(' ')
+    st.markdown(' ')
     if st.button("🏠 Home", use_container_width=True, key='left'):
         st.switch_page("Tools/home.py")
     for group, pages in pages_by_group.items():
@@ -75,9 +75,9 @@ with st.sidebar:
         match = re.search(r'^version\s*=\s*[\'"]([^\'"]+)[\'"]', file_content, re.MULTILINE)
         remote_version = match.group(1)
         if remote_version == version:
-            st.markdown('<div style="font-size:12px ;color: white; ">New Version not Available</div>',unsafe_allow_html=True)
+            st.markdown('<div style="font-size:12px ;color: white; ">You are using the latest version</div>',unsafe_allow_html=True)
         else:
-            st.markdown('<div style="font-size:12px ;color: white; ">New Version Available</div>',unsafe_allow_html=True)
+            st.markdown('<div style="font-size:12px ;color: white; ">A latest version is available. Please update to get the latest features</div>',unsafe_allow_html=True)
             if st.button('Update'):
                 zip_url = f"https://github.com/Analyst-FPNA/GIS-Cleaning/archive/refs/heads/main.zip"
 
@@ -101,10 +101,9 @@ with st.sidebar:
                         # Simpan file ke direktori kerja
                         with open(relative_path, "wb") as f:
                             f.write(z.read(member))
-                
             
     except (requests.ConnectionError, requests.Timeout):
-        st.markdown('<div style="font-size:12px ;color: white; ">Offline</div>',unsafe_allow_html=True)
+        st.markdown('<div style="font-size:12px ;color: white; ">An internet connection is required to check for the latest version</div>',unsafe_allow_html=True)
 
 
 current_page.run()
