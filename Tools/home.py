@@ -7,6 +7,9 @@ from PIL import Image
 
 if 'Flowbit.exe' not in os.listdir():
     dir_main = 'Main/'
+else:
+    dir_main = ''
+    
 st.markdown("""
         <style>
                .block-container {
