@@ -5,6 +5,8 @@ from io import BytesIO
 import io
 from PIL import Image
 
+if 'Flowbit.exe' not in os.listdir():
+    dir_main = 'Main/'
 st.markdown("""
         <style>
                .block-container {
@@ -14,7 +16,7 @@ st.markdown("""
         """, unsafe_allow_html=True)
 
 # Membaca gambar menggunakan PIL
-image = Image.open("etc/Pict Home.png")  # Ganti dengan path file gambarmu
+image = Image.open(dir_main + "etc/Pict Home.png")  # Ganti dengan path file gambarmu
 
 col = st.columns([4,1])
 with col[0]:
