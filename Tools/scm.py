@@ -15,13 +15,6 @@ import re
 import io
 import traceback
 
-st.markdown("""
-        <style>
-               .block-container {
-                    padding-top: 3.5rem;
-                }
-        </style>
-        """, unsafe_allow_html=True)
 
 if "process" not in st.session_state:
     st.session_state.process = False
