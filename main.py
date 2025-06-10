@@ -8,7 +8,13 @@ import zipfile
 version = 'v2.0.1'
 data = '10/06/2025'
 st.set_page_config(layout="wide")
-
+st.markdown("""
+        <style>
+               .block-container {
+                    padding-top: 3rem;
+                }
+        </style>
+        """, unsafe_allow_html=True)
 if 'Flowbit.exe' not in os.listdir():
     dir_main = 'Main/'
     status = 'online'
