@@ -30,6 +30,8 @@ if "selected_option" not in st.session_state:
 
 if 'Flowbit.exe' not in os.listdir():
     dir_main = 'Main/'
+else:
+    dir_main = ''
         
 def load_excel(file_path):
     with open(file_path, 'rb') as file:
