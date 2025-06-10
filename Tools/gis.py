@@ -26,6 +26,8 @@ if "selected_option" not in st.session_state:
 
 if 'Flowbit.exe' not in os.listdir():
     dir_main = 'Main/'
+else:
+    dir_main = ''
         
 with col[0]:
     with st.container(border=True):
