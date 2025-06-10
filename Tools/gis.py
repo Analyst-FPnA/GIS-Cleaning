@@ -994,9 +994,9 @@ with col[1]:
                                 )  
                                 
                             if selected_option=='99.01':
-                                df_brg = pd.read_csv('Master/KATEGORI BARANG.csv')
-                                df_grp = pd.read_csv('Master/GROUP PEMASOK.csv')
-                                df_prov = pd.read_excel('Master/database provinsi.xlsx')
+                                df_brg = pd.read_csv(dir_main+'Master/KATEGORI BARANG.csv')
+                                df_grp = pd.read_csv(dir_main+'Master/GROUP PEMASOK.csv')
+                                df_prov = pd.read_excel(dir_main+'Master/database provinsi.xlsx')
 
                                 df_prov = df_prov[3:].dropna(subset=['Unnamed: 4']) 
                                 df_prov.columns = df_prov.loc[3,:].values
