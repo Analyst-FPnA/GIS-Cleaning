@@ -11,6 +11,7 @@ st.set_page_config(layout="wide")
 
 if 'Flowbit.exe' not in os.listdir():
     dir = 'Main/'
+    status = 'online'
     for local_path, url in {dir+'Tools/scm.py':'https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/Tools/scm.py',
                             dir+'Tools/gis.py':'https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/Tools/gis.py',
                             dir+'Tools/home.py':'https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/Tools/home.py'}.items():
@@ -24,6 +25,7 @@ if 'Flowbit.exe' not in os.listdir():
             st.error(f"Failed to download file: {response.status_code}")
 else:
     dir = ''
+    status = 'offline'
     
 page_1 = st.Page(dir + "Tools/gis.py", title="GIS-Processing")
 page_2 = st.Page(dir + "Tools/scm.py", title="SCM-Processing")
