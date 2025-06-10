@@ -6,17 +6,18 @@ import os
 import zipfile
 
 version = 'v2.0.1'
+data = '10/06/2025'
 st.set_page_config(layout="wide")
 
-page_1 = st.Page("Tools/gis-cleaning.py", title="GIS-CLeaning")
-page_2 = st.Page("Tools/scm-cleaning.py", title="SCM-Cleaning")
+page_1 = st.Page("Tools/gis.py", title="GIS-Processing")
+page_2 = st.Page("Tools/scm.py", title="SCM-Processing")
 page_3 = st.Page("Tools/home.py", title="Home")
 
 current_page = st.navigation(pages=[page_1,page_2,page_3], position="hidden")
 pages_by_group = {
                   '🧰 Tools':[
-                    {'title':'GIS-Cleaning','page':'Tools/gis-cleaning.py'}, 
-                    {'title':'SCM-Cleaning','page':'Tools/scm-cleaning.py'}]
+                    {'title':'GIS-Processing','page':'Tools/gis.py'}, 
+                    {'title':'SCM-Processing','page':'Tools/scm.py'}]
                    }
 st.markdown(
     """
@@ -74,10 +75,12 @@ with st.sidebar:
         # Cari nilai variabel version (asumsikan ditulis seperti: version = "1.2.3")
         match = re.search(r'^version\s*=\s*[\'"]([^\'"]+)[\'"]', file_content, re.MULTILINE)
         remote_version = match.group(1)
-        if remote_version == version:
-            st.markdown('<div style="font-size:12px ;color: white; ">You are using the latest version</div>',unsafe_allow_html=True)
+        match = re.search(r'^data\s*=\s*[\'"]([^\'"]+)[\'"]', file_content, re.MULTILINE)
+        data_version = match.group(1)
+        if (remote_version == version) & (data_version==data):
+            st.markdown('<div style="font-size:12px ;color: white; ">You are using the latest database and version</div>',unsafe_allow_html=True)
         else:
-            st.markdown('<div style="font-size:12px ;color: white; ">A latest version is available. Please update to get the latest features</div>',unsafe_allow_html=True)
+            st.markdown('<div style="font-size:12px ;color: white; ">A latest database or version is available. Please update to get the latest features</div>',unsafe_allow_html=True)
             if st.button('Update'):
                 zip_url = f"https://github.com/Analyst-FPNA/GIS-Cleaning/archive/refs/heads/main.zip"
 
@@ -103,7 +106,7 @@ with st.sidebar:
                             f.write(z.read(member))
             
     except (requests.ConnectionError, requests.Timeout):
-        st.markdown('<div style="font-size:12px ;color: white; ">An internet connection is required to check for the latest version</div>',unsafe_allow_html=True)
+        st.markdown('<div style="font-size:12px ;color: white; ">An internet connection is required to check for the latest database and version</div>',unsafe_allow_html=True)
 
 
 current_page.run()
