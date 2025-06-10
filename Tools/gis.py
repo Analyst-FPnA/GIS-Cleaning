@@ -9,13 +9,6 @@ import os
 import requests
 import re
 import traceback
-st.markdown("""
-        <style>
-               .block-container {
-                    padding-top: 3.5rem;
-                }
-        </style>
-        """, unsafe_allow_html=True)
 
 st.title('GIS-Processing')
 col = st.columns([2,1])
