@@ -12,17 +12,34 @@ st.set_page_config(layout="wide")
 if 'Flowbit.exe' not in os.listdir():
     dir = 'Main/'
     status = 'online'
-    for local_path, url in {dir+'Tools/scm.py':'https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/Tools/scm.py',
-                            dir+'Tools/gis.py':'https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/Tools/gis.py',
-                            dir+'Tools/home.py':'https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/Tools/home.py'}.items():
-        response = requests.get(url)
-        if response.status_code == 200:
-            os.makedirs(os.path.dirname(local_path), exist_ok=True)
-            with open(local_path, "wb") as f:
-                f.write(response.content)
-            
-        else:
-            st.error(f"Failed to download file: {response.status_code}")
+    zip_url = "https://github.com/Analyst-FPNA/GIS-Cleaning/archive/refs/heads/main.zip"
+    
+    response = requests.get(zip_url)
+    if response.status_code != 200:
+        raise Exception(f"Gagal mengunduh ZIP: {response.status_code}")
+    
+    with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+        root_folder = z.namelist()[0].split('/')[0]  # Contoh: 'GIS-Cleaning-main'
+        
+        # Folder target tempat ekstraksi
+        extract_root = os.path.join("Main")
+    
+        for member in z.namelist():
+            if member.endswith("/"):
+                continue  # Lewati folder
+    
+            # Hapus nama folder root dari path
+            relative_path = os.path.relpath(member, root_folder)
+    
+            # Path final tempat file disimpan
+            target_path = os.path.join(extract_root, relative_path)
+    
+            # Buat folder jika belum ada
+            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+    
+            # Tulis file
+            with open(target_path, "wb") as f:
+                f.write(z.read(member))
 else:
     dir = ''
     status = 'offline'
