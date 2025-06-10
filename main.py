@@ -9,6 +9,9 @@ version = 'v2.0.1'
 data = '10/06/2025'
 st.set_page_config(layout="wide")
 
+if 'Flowbit.exe' not in os.listdir():
+    st.write('online')
+    
 page_1 = st.Page("Tools/gis.py", title="GIS-Processing")
 page_2 = st.Page("Tools/scm.py", title="SCM-Processing")
 page_3 = st.Page("Tools/home.py", title="Home")
