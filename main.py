@@ -45,7 +45,6 @@ else:
     dir_main = ''
     status = 'offline'
 
-st.write(os.listdir())
 page_1 = st.Page(dir_main + "Tools/gis.py", title="GIS-Processing")
 page_2 = st.Page(dir_main + "Tools/scm.py", title="SCM-Processing")
 page_3 = st.Page(dir_main + "Tools/home.py", title="Home")
