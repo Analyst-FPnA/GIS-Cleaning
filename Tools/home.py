@@ -4,6 +4,7 @@ import streamlit as st
 from io import BytesIO
 import io
 from PIL import Image
+import os
 
 if 'Flowbit.exe' not in os.listdir():
     dir_main = 'Main/'
