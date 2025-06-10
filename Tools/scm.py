@@ -28,6 +28,9 @@ if "process" not in st.session_state:
 if "selected_option" not in st.session_state:
     st.session_state.selected_option = None
 
+if 'Flowbit.exe' not in os.listdir():
+    dir_main = 'Main/'
+        
 def load_excel(file_path):
     with open(file_path, 'rb') as file:
         model = pd.read_excel(file, engine='openpyxl')
