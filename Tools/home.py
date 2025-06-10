@@ -10,14 +10,6 @@ if 'Flowbit.exe' not in os.listdir():
     dir_main = 'Main/'
 else:
     dir_main = ''
-    
-st.markdown("""
-        <style>
-               .block-container {
-                    padding-top: 3.5rem;
-                }
-        </style>
-        """, unsafe_allow_html=True)
 
 # Membaca gambar menggunakan PIL
 image = Image.open(dir_main + "etc/Pict Home.png")  # Ganti dengan path file gambarmu
