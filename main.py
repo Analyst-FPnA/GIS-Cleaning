@@ -10,18 +10,30 @@ data = '10/06/2025'
 st.set_page_config(layout="wide")
 
 if 'Flowbit.exe' not in os.listdir():
-    st.write('online')
-    os.listdir()
+    dir = 'Main/'
+    for local_path, url in {dir+'Tools/scm.py':'https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/Tools/scm.py',
+                            dir+'Tools/gis.py':'https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/Tools/gis.py',
+                            dir+'Tools/home.py':'https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/Tools/home.py'}.items():
+        response = requests.get(url)
+        if response.status_code == 200:
+            os.makedirs(os.path.dirname(local_path), exist_ok=True)
+            with open(local_path, "wb") as f:
+                f.write(response.content)
+            
+        else:
+            st.error(f"Failed to download file: {response.status_code}")
+else:
+    dir = ''
     
-page_1 = st.Page("Tools/gis.py", title="GIS-Processing")
-page_2 = st.Page("Tools/scm.py", title="SCM-Processing")
-page_3 = st.Page("Tools/home.py", title="Home")
+page_1 = st.Page(dir + "Tools/gis.py", title="GIS-Processing")
+page_2 = st.Page(dir + "Tools/scm.py", title="SCM-Processing")
+page_3 = st.Page(dir + "Tools/home.py", title="Home")
 
 current_page = st.navigation(pages=[page_1,page_2,page_3], position="hidden")
 pages_by_group = {
                   '🧰 Tools':[
-                    {'title':'GIS-Processing','page':'Tools/gis.py'}, 
-                    {'title':'SCM-Processing','page':'Tools/scm.py'}]
+                    {'title':'GIS-Processing','page': dir + 'Tools/gis.py'}, 
+                    {'title':'SCM-Processing','page': dir + 'Tools/scm.py'}]
                    }
 st.markdown(
     """
@@ -57,7 +69,7 @@ with st.sidebar:
 
     st.markdown(' ')
     if st.button("🏠 Home", use_container_width=True, key='left'):
-        st.switch_page("Tools/home.py")
+        st.switch_page(dir + "Tools/home.py")
     for group, pages in pages_by_group.items():
         with st.popover(group,use_container_width=True):
             for page in pages:
