@@ -44,7 +44,8 @@ if 'Flowbit.exe' not in os.listdir():
 else:
     dir = ''
     status = 'offline'
-    
+
+st.write(os.listdir())
 page_1 = st.Page(dir + "Tools/gis.py", title="GIS-Processing")
 page_2 = st.Page(dir + "Tools/scm.py", title="SCM-Processing")
 page_3 = st.Page(dir + "Tools/home.py", title="Home")
