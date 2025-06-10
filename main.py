@@ -10,7 +10,7 @@ data = '10/06/2025'
 st.set_page_config(layout="wide")
 
 if 'Flowbit.exe' not in os.listdir():
-    dir = 'Main/'
+    dir_main = 'Main/'
     status = 'online'
     if 'Main' not in os.listdir():
         zip_url = "https://github.com/Analyst-FPNA/GIS-Cleaning/archive/refs/heads/main.zip"
@@ -42,19 +42,19 @@ if 'Flowbit.exe' not in os.listdir():
                 with open(target_path, "wb") as f:
                     f.write(z.read(member))
 else:
-    dir = ''
+    dir_main = ''
     status = 'offline'
 
 st.write(os.listdir())
-page_1 = st.Page(dir + "Tools/gis.py", title="GIS-Processing")
-page_2 = st.Page(dir + "Tools/scm.py", title="SCM-Processing")
-page_3 = st.Page(dir + "Tools/home.py", title="Home")
+page_1 = st.Page(dir_main + "Tools/gis.py", title="GIS-Processing")
+page_2 = st.Page(dir_main + "Tools/scm.py", title="SCM-Processing")
+page_3 = st.Page(dir_main + "Tools/home.py", title="Home")
 
 current_page = st.navigation(pages=[page_1,page_2,page_3], position="hidden")
 pages_by_group = {
                   '🧰 Tools':[
-                    {'title':'GIS-Processing','page': dir + 'Tools/gis.py'}, 
-                    {'title':'SCM-Processing','page': dir + 'Tools/scm.py'}]
+                    {'title':'GIS-Processing','page': dir_main + 'Tools/gis.py'}, 
+                    {'title':'SCM-Processing','page': dir_main + 'Tools/scm.py'}]
                    }
 st.markdown(
     """
@@ -90,7 +90,7 @@ with st.sidebar:
 
     st.markdown(' ')
     if st.button("🏠 Home", use_container_width=True, key='left'):
-        st.switch_page(dir + "Tools/home.py")
+        st.switch_page(dir_main + "Tools/home.py")
     for group, pages in pages_by_group.items():
         with st.popover(group,use_container_width=True):
             for page in pages:
