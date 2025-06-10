@@ -93,7 +93,7 @@ with col[0]:
             else:
                 st.warning("Silakan upload file terlebih dahulu.")
             
-        db_ia = pd.read_excel('Master/DATABASE_IA.xlsx')
+        db_ia = pd.read_excel(dir_main+'Master/DATABASE_IA.xlsx')
 
 
 
