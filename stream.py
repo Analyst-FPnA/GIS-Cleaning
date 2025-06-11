@@ -11,6 +11,9 @@ import pytz
 import requests
 import os
 
+st.error("Platform web ini sudah tidak lagi menerima pembaruan dan akan dinonaktifkan pada 20/06/2025. 
+Segera gunakan aplikasi versi offline (DEX) untuk mengakses fitur dan data terbaru.")
+
 def download_file_from_github(url, save_path):
     response = requests.get(url)
     if response.status_code == 200:
