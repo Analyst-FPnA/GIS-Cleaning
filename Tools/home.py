@@ -6,7 +6,7 @@ import io
 from PIL import Image
 import os
 
-if 'Flowbit.exe' not in os.listdir():
+if 'DEX.exe' not in os.listdir():
     dir_main = 'Main/'
 else:
     dir_main = ''
