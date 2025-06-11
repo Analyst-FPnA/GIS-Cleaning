@@ -15,7 +15,7 @@ st.markdown("""
                 }
         </style>
         """, unsafe_allow_html=True)
-if 'Flowbit.exe' not in os.listdir():
+if 'DEX.exe' not in os.listdir():
     dir_main = 'Main/'
     status = 'online'
     if 'Main' not in os.listdir():
@@ -90,7 +90,7 @@ st.markdown(
 
 
 with st.sidebar:
-    st.markdown('<h1 style="color: white; font-weight: bold;margin:0; padding:0;">Flowbit 🚀</h1>',unsafe_allow_html=True)
+    st.markdown('<h1 style="color: white; font-weight: bold;margin:0; padding:0;">DEX 🚀</h1>',unsafe_allow_html=True)
     st.markdown(f'<div style="font-size:12px ;color: white; font-weight: bold; margin:0; padding:0;">{version}</div>',unsafe_allow_html=True)
 
     st.markdown(' ')
