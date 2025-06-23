@@ -1,6 +1,6 @@
 version = "v2.0.1"
 data = "10/06/2025"
-success_html = """        
+detail = """        
 <div style="
     background-color: #d4edda; 
     color: #155724; 
