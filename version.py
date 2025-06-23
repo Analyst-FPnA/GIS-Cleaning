@@ -11,7 +11,7 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            Next Version Update Details: v2.0.1
+            Latest Version Update Details: v2.0.1
         </div>
         <ul style="padding-left: 18px; margin: 0;">
             <li style="margin-bottom: 6px;">Updated web interface for a cleaner and more modern look</li>
