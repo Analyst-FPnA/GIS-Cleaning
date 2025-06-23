@@ -11,13 +11,13 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.0.1
+            New Version Update Details: v2.1.1
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li style="margin-bottom: 6px;">Updated web interface for a cleaner and more modern look</li>
-            <li style="margin-bottom: 6px;">Added automatic version update feature</li>
-            <li style="margin-bottom: 6px;">Introduced a new "Home" page</li>
-            <li>Fixed bugs in the “PENYESUAIAN IA” module [SCM-Cleaning]</li>
+            <li style="margin-bottom: 6px;">New OCR-SJ module [SCM-Processing]</li>
+            <li style="margin-bottom: 6px;">Detailed version update information added</li>
+            <li style="margin-bottom: 6px;">Update button adjusted</li>
+            <li>Database updated</li>
         </ul>
         </div>
         """
