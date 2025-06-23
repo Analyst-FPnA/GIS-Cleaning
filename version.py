@@ -11,7 +11,7 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.1
+            New Version Update Details: v2.1.0
         </div>
         <ul style="padding-left: 18px; margin: 0;">
             <li style="margin-bottom: 6px;">New OCR-SJ module [SCM-Processing]</li>
