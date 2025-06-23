@@ -1,19 +1,23 @@
 version = "v2.0.1"
 data = "10/06/2025"
-detail = """        
-<div style="
-    background-color: #d4edda; 
-    color: #155724; 
-    border-radius: 5px; 
-    font-size: 11px;
-    font-weight: 600;
-    border: 1px solid #c3e6cb;
-">
-<ul style="padding-top: 10px; padding-bottom: 10px; padding-left: 12px; padding-right: 10px; margin: 0;">
-    <li style="margin-bottom: 6px;">Perubahan tampilan web</li>
-    <li style="margin-bottom: 6px;">Penambahan fitur pembaruan versi secara otomatis</li>
-    <li style="margin-bottom: 6px;">Penambahan halaman "Home"</li>
-    <li>Perbaikan bug pada modul "PENYESUAIAN IA" [SCM-Cleaning]</li>
-</ul>
-</div>
-"""
+detail = """
+        <div style="
+            background-color: #d4edda; 
+            color: #155724; 
+            border-radius: 5px; 
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid #c3e6cb;
+            padding: 10px 12px;
+        ">
+        <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
+            Latest Version Update Details: v2.0.1
+        </div>
+        <ul style="padding-left: 18px; margin: 0;">
+            <li style="margin-bottom: 6px;">Updated web interface for a cleaner and more modern look</li>
+            <li style="margin-bottom: 6px;">Added automatic version update feature</li>
+            <li style="margin-bottom: 6px;">Introduced a new "Home" page</li>
+            <li>Fixed bugs in the “PENYESUAIAN IA” module [SCM-Cleaning]</li>
+        </ul>
+        </div>
+        """
