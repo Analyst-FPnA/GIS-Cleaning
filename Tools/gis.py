@@ -26,7 +26,7 @@ with col[0]:
     with st.container(border=True):
         
         selected_option = st.selectbox("Pilih Modul", ['13.01','13.10','13.22','13.31','13.33','13.55','13.66','22.05','22.16','22.19','32.07','32.15','32.23','32.24','32.43','41.01','41.04','41.04.B','41.09','42.02','42.05','42.06','42.08','42.15','42.17','42.17 (Rev1)','42.18','44.06','44.08','51.01','99.01'])
-        uploaded_file = st.file_uploader("Upload File", type="xlsx", accept_multiple_files=True)
+        uploaded_file = st.file_uploader("Pilih File", type="xlsx", accept_multiple_files=True)
 
         st.session_state.process = False
         def download_file_from_github(url, save_path):
@@ -998,22 +998,18 @@ with col[1]:
                                 df_prov = df_prov[3:].dropna(subset=['Unnamed: 4']) 
                                 df_prov.columns = df_prov.loc[3,:].values
                                 df_prov = df_prov.loc[4:,]
-                                df_prov = df_prov.loc[:, ['Nama','Provinsi Alamat','Kota Alamat']]
-                                df_prov = df_prov.rename(columns={'Nama':'Nama Cabang','Provinsi Alamat':'Provinsi Gudang', 'Kota Alamat': 'Kota/Kabupaten'})
+                                df_prov = df_prov.loc[:, ['Nama','Kota Alamat']]
+                                df_prov = df_prov.rename(columns={'Nama':'Nama Cabang', 'Kota Alamat': 'Kota/Kabupaten'})
                                 df_prov['Nama Cabang'] = df_prov['Nama Cabang'].str.extract(r'\(([^()]*)\)')[0].values
                                 df_prov = df_prov.drop_duplicates('Nama Cabang')
                                 df_prov.loc[df_prov[df_prov['Nama Cabang'].isna()].index,'Nama Cabang']= 'TNRISA'
                                 concatenated_df = []
                                 for file in uploaded_file:
-                                    df_9901 = pd.read_excel(file).fillna('')
-                                    df_9901 = df_9901.merge(
+                                    df_9901 = pd.read_excel(file)
+                                    df_9901 = df_9901[~df_9901['Tanggal'].isna()][[x for x in df_9901.columns if 'Unnamed' not in x]].merge(
                                                     df_brg, on='Kode #', how='left').merge(
                                                         df_grp, on='Pemasok', how='left'
-                                                    ).loc[:,['Nama Cabang', 'Nomor #', 'Tanggal', 'Pemasok',
-                                                       'Kategori Pemasok', '#Group' ,'Kode #', 'Nama Barang',
-                                                       'Kategori Barang', '#Purch.Qty', '#Purch.UoM', '#Prime.Ratio',
-                                                       '#Prime.Qty', '#Prime.UoM', '#Purch.@Price', '#Purch.Discount',
-                                                       '#Prime.NetPrice', '#Purch.Total']].fillna('')
+                                                    )
                                         
                                     df_9901['Nama Cabang'] = df_9901['Nama Cabang'].str.split('.').str[1]
                                     
@@ -1033,7 +1029,8 @@ with col[1]:
                                     data=excel_data,
                                     file_name=f'99.01_{get_current_time_gmt7()}.xlsx',
                                     mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                                )   
+                                )
+
             except Exception as e:
                 st.error('Failed', icon='🛑')
                 try:
