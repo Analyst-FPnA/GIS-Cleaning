@@ -5,16 +5,21 @@ import io
 import os
 import zipfile
 
-version = 'v2.0.1'
-data = '10/06/2025'
-st.set_page_config(layout="wide")
-st.markdown("""
-        <style>
-               .block-container {
-                    padding-top: 3rem;
-                }
-        </style>
-        """, unsafe_allow_html=True)
+with open("version.py", "r", encoding="utf-8") as f:
+    file_content = f.read()
+
+namespace = {}
+exec(file_content, namespace)
+
+version = namespace.get("version")
+data= namespace.get("data")
+
+st.set_page_config(
+    page_title="DEX",
+    page_icon="ikon.ico",
+    layout="wide"
+)
+
 if 'DEX.exe' not in os.listdir():
     dir_main = 'Main/'
     status = 'online'
@@ -26,25 +31,19 @@ if 'DEX.exe' not in os.listdir():
             raise Exception(f"Gagal mengunduh ZIP: {response.status_code}")
         
         with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-            root_folder = z.namelist()[0].split('/')[0]  # Contoh: 'GIS-Cleaning-main'
-            
-            # Folder target tempat ekstraksi
+            root_folder = z.namelist()[0].split('/')[0] 
             extract_root = os.path.join("Main")
         
             for member in z.namelist():
                 if member.endswith("/"):
-                    continue  # Lewati folder
+                    continue  
         
-                # Hapus nama folder root dari path
                 relative_path = os.path.relpath(member, root_folder)
         
-                # Path final tempat file disimpan
                 target_path = os.path.join(extract_root, relative_path)
         
-                # Buat folder jika belum ada
                 os.makedirs(os.path.dirname(target_path), exist_ok=True)
         
-                # Tulis file
                 with open(target_path, "wb") as f:
                     f.write(z.read(member))
 else:
@@ -72,7 +71,7 @@ st.markdown(
     }
     section[data-testid="stSidebar"] {
         background-color: #001C53;
-        width:200;
+        width: 200px;
     }
     
     .st-key-left .stButton button {
@@ -91,7 +90,7 @@ st.markdown(
 
 with st.sidebar:
     st.markdown('<h1 style="color: white; font-weight: bold;margin:0; padding:0;">DEX 🚀</h1>',unsafe_allow_html=True)
-    st.markdown(f'<div style="font-size:12px ;color: white; font-weight: bold; margin:0; padding:0;">{version}</div>',unsafe_allow_html=True)
+    st.markdown(f'<div style="font-size:12px ;color: white; font-weight: bold; margin:0; padding:0;">{version} #{data}</div>',unsafe_allow_html=True)
 
     st.markdown(' ')
     if st.button("🏠 Home", use_container_width=True, key='left'):
@@ -106,49 +105,67 @@ with st.sidebar:
                 )
     st.divider()
     try:
-        # Kirim permintaan ke Google
         requests.get("https://www.google.com", timeout=3)
         url = "https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/version.py"
 
-        # Ambil isi file sebagai teks
         response = requests.get(url)
         file_content = response.text
 
-        # Cari nilai variabel version (asumsikan ditulis seperti: version = "1.2.3")
-        match = re.search(r'^version\s*=\s*[\'"]([^\'"]+)[\'"]', file_content, re.MULTILINE)
-        remote_version = match.group(1)
-        match = re.search(r'^data\s*=\s*[\'"]([^\'"]+)[\'"]', file_content, re.MULTILINE)
-        data_version = match.group(1)
+        namespace = {}
+        exec(response.text, namespace)
+        
+        remote_version = namespace.get("version")
+        data_version = namespace.get("data")
+        detail = namespace.get("detail")
+
         if (remote_version == version) & (data_version==data):
             st.markdown('<div style="font-size:12px ;color: white; ">You are using the latest database and version</div>',unsafe_allow_html=True)
         else:
-            st.markdown('<div style="font-size:12px ;color: white; ">A latest database or version is available. Please update to get the latest features</div>',unsafe_allow_html=True)
-            if st.button('Update'):
-                zip_url = f"https://github.com/Analyst-FPNA/GIS-Cleaning/archive/refs/heads/main.zip"
+            st.markdown('<div style="font-size:12px ;color: white; ">A new database or version is available. Please update to get the new features</div>',unsafe_allow_html=True)
+            if remote_version.split('.')[1] == version.split('.')[1]:
+                if st.button('Update'):
+                    zip_url = f"https://github.com/Analyst-FPNA/GIS-Cleaning/archive/refs/heads/main.zip"
 
-                response = requests.get(zip_url)
-                if response.status_code != 200:
-                    raise Exception(f"Gagal mengunduh ZIP: {response.status_code}")
-                with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-                    root_folder = z.namelist()[0].split('/')[0]  # contoh: 'repo-main'
+                    response = requests.get(zip_url)
+                    if response.status_code != 200:
+                        raise Exception(f"Gagal mengunduh ZIP: {response.status_code}")
+                    with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+                        root_folder = z.namelist()[0].split('/')[0]  # contoh: 'repo-main'
 
-                    for member in z.namelist():
-                        if member.endswith("/"):
-                            continue  # Lewati folder
+                        for member in z.namelist():
+                            if member.endswith("/"):
+                                continue  # Lewati folder
 
-                        # Hapus nama folder root dari path
-                        relative_path = os.path.relpath(member, root_folder)
+                            # Hapus nama folder root dari path
+                            relative_path = os.path.relpath(member, root_folder)
 
-                        # Buat folder jika belum ada
-                        if os.path.dirname(relative_path):
-                            os.makedirs(os.path.dirname(relative_path), exist_ok=True)
+                            # Buat folder jika belum ada
+                            if os.path.dirname(relative_path):
+                                os.makedirs(os.path.dirname(relative_path), exist_ok=True)
 
-                        # Simpan file ke direktori kerja
-                        with open(relative_path, "wb") as f:
-                            f.write(z.read(member))
-            
+                            # Simpan file ke direktori kerja
+                            with open(relative_path, "wb") as f:
+                                f.write(z.read(member))
+            else:
+                error_html = """
+                <div style="
+                    background-color: #f8d7da; 
+                    color: #721c24; 
+                    border-radius: 5px; 
+                    font-size: 11px;
+                    font-weight: 600;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 12px;
+                ">This is a major update. Please perform a manual update using the latest DEX file provided by the Analyst Team.
+                </div>
+                """
+
+                st.markdown(error_html, unsafe_allow_html=True)
+            st.write('')
+            st.markdown(detail, unsafe_allow_html=True)
+
     except (requests.ConnectionError, requests.Timeout):
-        st.markdown('<div style="font-size:12px ;color: white; ">An internet connection is required to check for the latest database and version</div>',unsafe_allow_html=True)
-
-
+        st.markdown('<div style="font-size:12px ;color: white; ">An internet connection is required to check for the new database and version</div>',unsafe_allow_html=True)
+    
+    
 current_page.run()
