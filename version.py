@@ -1,4 +1,4 @@
-version = "v2.1.0"
+version = "v2.1.1"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -11,13 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.0
+            New Version Update Details: v2.1.1
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li style="margin-bottom: 6px;">New OCR-SJ module [SCM-Processing]</li>
-            <li style="margin-bottom: 6px;">Detailed version update information added</li>
-            <li style="margin-bottom: 6px;">Update button adjusted</li>
-            <li>Database updated</li>
+            <li>New REKAP SALES ESB & GIS module [SCM-Processing]</li>
         </ul>
         </div>
         """
