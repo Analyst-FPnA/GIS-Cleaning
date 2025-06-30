@@ -18,7 +18,7 @@ col = st.columns([4,1])
 with col[0]:
     st.image(image)
 with col[1]:
-    with st.expander("Latest Version Update Details: v2.1.0"):
+    with st.expander("Latest Version Update Details: v2.1.1"):
 
         success_html = """
         <div style="
@@ -30,10 +30,7 @@ with col[1]:
             border: 1px solid #c3e6cb;
         ">
         <ul style="padding-top: 10px; padding-bottom: 10px; padding-left: 12px; padding-right: 10px; margin: 0;">
-            <li style="margin-bottom: 6px;">New OCR-SJ module [SCM-Processing]</li>
-            <li style="margin-bottom: 6px;">Detailed version update information added</li>
-            <li style="margin-bottom: 6px;">Update button adjusted</li>
-            <li>Database updated</li>
+            <li>New REKAP SALES ESB & GIS module [SCM-Processing]</li>
         </ul>
         </div>
         """
