@@ -92,7 +92,7 @@ col = st.columns([2,1])
 df_sj = []
 with col[0]:
     with st.container(border=True):
-        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','PENYESUAIAN IA','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
+        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP SALES ESB & GIS','PENYESUAIAN IA','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
         uploaded_file = st.file_uploader("Pilih File", type=["zip",'xlsx'])
     
         if selected_option == 'REKAP MENTAH':
@@ -131,6 +131,8 @@ with col[0]:
             with kol[1]:
                 all_date = st.slider('Pilih Tanggal', 1, 31, (1, 31), on_change=reset_button_state)
                 all_date = [f"{i:02}" for i in range(all_date[0], all_date[1] + 1)]
+        if selected_option == 'REKAP SALES ESB & GIS':
+            st.markdown("<span style='font-size:12px; font-weight:bold;'>File format <em>zip</em></span>",unsafe_allow_html=True)
         if st.button("Process"):
             if uploaded_file:
                 st.session_state.selected_option = selected_option
@@ -809,7 +811,42 @@ with col[1]:
                                 data=to_excel(df_sj),
                                 file_name=f'CHECK SJ_{get_current_time_gmt7()}.xlsx',
                                 mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                
+
+                    if selected_option == 'REKAP SALES ESB & GIS':
+                        with tempfile.TemporaryDirectory() as tmpdirname:
+                            with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+                                zip_ref.extractall(tmpdirname)
+
+                            for file in os.listdir(tmpdirname):
+                                if file.startswith('4121'):
+                                    df_4121 = pd.read_excel(os.path.join(tmpdirname, file), header=4)
+                                    df_4121 = df_4121.loc[~df_4121['Kode Barang'].isna(), ~df_4121.columns.str.startswith('Unnamed')]
+                                    df_4121 = df_4121[df_4121['Non Aktif Barang & Jasa']=='Tidak'].reset_index(drop=True)
+                                if file.startswith('2205'):
+                                    df_2205 = pd.read_excel(os.path.join(tmpdirname, file), skiprows=4).fillna('')
+                                    df_2205 = df_2205.iloc[:-5]
+                                    df_2205 = df_2205.loc[:, ~df_2205.columns.str.startswith('Unnamed:')]
+                                    db_2205 = df_2205[['Kode #','Nama Barang','Satuan']].drop_duplicates()
+                                if file.startswith('Daily'):
+                                    df_esb = pd.read_excel(os.path.join(tmpdirname, file), header=12)
+                                    df_esb = df_esb[df_esb['Type'].isin(['Ala Carte', 'Package Head'])]
+                            df_esb = df_esb[['Branch','Sales Date','Menu Name','Menu Code','Qty']].assign(**{'Menu Code': df_esb['Menu Code'].astype(str)}).merge(df_4121[['Kode Barang Grup Barang','Kode Barang','Kuantitas']].rename(columns={'Kode Barang Grup Barang':'Menu Code'}), on='Menu Code', how='left')
+                            df_esb = df_esb.assign(**{'Kuantitas_ESB':df_esb['Kuantitas'] * df_esb['Qty'],
+                                            'Branch':df_esb['Branch'].str.extract(r'\.(.+)')}).groupby(['Branch','Sales Date','Kode Barang'])[['Kuantitas_ESB']].sum().reset_index().merge(
+                                df_2205.assign(**{'Nama Pelanggan':df_2205['Nama Pelanggan'].str.extract(r'\(([^()]*)\)')[0].values})[df_2205['Nomor #'].str.startswith('ACR')][['Nama Pelanggan','Tanggal','Kode #','Kuantitas']].rename(
+                                    columns={'Nama Pelanggan':'Branch','Tanggal':'Sales Date','Kode #':'Kode Barang','Kuantitas':'Kuantitas_GIS'}),
+                                on=['Branch','Sales Date','Kode Barang'], how='outer').merge(
+                                db_2205.rename(columns={'Kode #':'Kode Barang'}), on='Kode Barang', how='left')
+                            df_esb['Selisih'] = (df_esb['Kuantitas_ESB'].fillna(0) - df_esb['Kuantitas_GIS'].fillna(0)).round(2).replace(-0.0,0.0)
+
+                            st.success('Success',icon='✅')
+                            st.download_button(
+                                label="Download",
+                                data=to_excel(df_esb),
+                                file_name=f'REKAP SALES ESB & GIS_{get_current_time_gmt7()}.xlsx',
+                                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            )
+
             except Exception as e:
                 st.error('Failed', icon='🛑')
                 try:
