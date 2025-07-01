@@ -1,4 +1,4 @@
-version = "v2.1.1"
+version = "v2.1.2"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -14,7 +14,7 @@ detail = """
             New Version Update Details: v2.1.1
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>New REKAP SALES ESB & GIS module [SCM-Processing]</li>
+            <li>Error Fix for REKAP 42.02 module [SCM-Processing]</li>
         </ul>
         </div>
         """
