@@ -11,7 +11,7 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.1
+            New Version Update Details: v2.1.2
         </div>
         <ul style="padding-left: 18px; margin: 0;">
             <li>Error Fix for REKAP 42.02 module [SCM-Processing]</li>
