@@ -318,35 +318,35 @@ with col[1]:
                             with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
                                 zip_ref.extractall(tmpdirname)
                         
-                        all_dfs = []
-                        for file in os.listdir(tmpdirname):
-                            if file.endswith('.xlsx'):
-                                file_path = os.path.join(tmpdirname, file)
-                
-                                # Ambil nama file dan ekstrak kode cabang
-                                match = re.search(r'_(\d{4}\.[A-Z]+)', file)
-                                cabang = match.group(1) if match else ''
-                
-                                # Baca Excel: header ke-5 (index ke-4)
-                                df = pd.read_excel(file_path, header=4).fillna('')
-                                df = df.loc[:, ~df.columns.str.startswith('Unnamed')]
-                                df['Cabang'] = cabang
-                
-                                all_dfs.append(df)
-                
-                        if all_dfs:
-                            df_combined = pd.concat(all_dfs, ignore_index=True)
-                
-                            # Tombol download hasil
-                            st.success('Success',icon='✅')
-                            st.download_button(
-                                label="Download",
-                                data=to_excel(df_combined),
-                                file_name=f'42.02 Combine_{get_current_time_gmt7()}.xlsx',
-                                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                            )
-                        else:
-                            st.warning("Tidak ada file .xlsx ditemukan dalam ZIP.")
+                            all_dfs = []
+                            for file in os.listdir(tmpdirname):
+                                if file.endswith('.xlsx'):
+                                    file_path = os.path.join(tmpdirname, file)
+                    
+                                    # Ambil nama file dan ekstrak kode cabang
+                                    match = re.search(r'_(\d{4}\.[A-Z]+)', file)
+                                    cabang = match.group(1) if match else ''
+                    
+                                    # Baca Excel: header ke-5 (index ke-4)
+                                    df = pd.read_excel(file_path, header=4).fillna('')
+                                    df = df.loc[:, ~df.columns.str.startswith('Unnamed')]
+                                    df['Cabang'] = cabang
+                    
+                                    all_dfs.append(df)
+                    
+                            if all_dfs:
+                                df_combined = pd.concat(all_dfs, ignore_index=True)
+                    
+                                # Tombol download hasil
+                                st.success('Success',icon='✅')
+                                st.download_button(
+                                    label="Download",
+                                    data=to_excel(df_combined),
+                                    file_name=f'42.02 Combine_{get_current_time_gmt7()}.xlsx',
+                                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                )
+                            else:
+                                st.warning("Tidak ada file .xlsx ditemukan dalam ZIP.")
 
                     if selected_option == 'WEBSMART (DINE IN/TAKEAWAY)':
                         with tempfile.TemporaryDirectory() as tmpdirname:
