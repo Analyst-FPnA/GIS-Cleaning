@@ -14,7 +14,7 @@ detail = """
             New Version Update Details: v2.1.3
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Column Format Adjustment on REKAP PENYESUAIAN INPUTAN IA [SCM-Processing]</li>
+            <li>Column Format Adjustment on REKAP PENYESUAIAN INPUTAN IA module [SCM-Processing]</li>
         </ul>
         </div>
         """
