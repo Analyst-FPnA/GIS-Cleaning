@@ -1,4 +1,4 @@
-version = "v2.1.2"
+version = "v2.1.3"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.2
+            New Version Update Details: v2.1.3
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Error Fix for REKAP 42.02 module [SCM-Processing]</li>
+            <li>Column Format Adjustment on REKAP PENYESUAIAN INPUTAN IA [SCM-Processing]</li>
         </ul>
         </div>
         """
