@@ -669,7 +669,7 @@ with col[1]:
                                             for file in os.listdir(f'{tmpdirname}/File SJ/{tanggal}/{cabang}'):
                                                 try:
                                                     if file.endswith('pdf'):
-                                                        images = convert_from_bytes(open(f'{tmpdirname}/File SJ/{tanggal}/{cabang}/{file}', "rb").read(), dpi=250,
+                                                        images = convert_from_bytes(open(f'{tmpdirname}/File SJ/{tanggal}/{cabang}/{file}', "rb").read(), dpi=370,
                                                             poppler_path=poppler_path)
                                                     else:
                                                         images = [Image.open(f'{tmpdirname}/File SJ/{tanggal}/{cabang}/{file}')]
@@ -792,7 +792,7 @@ with col[1]:
                                 df_sj1 = pd.concat([df_sj1,
                                 df_4205.merge(df_sj[~df_sj['Nama File_SJ'].isin(df_sj1['Nama File_SJ'].unique())], left_on=['Tanggal', 'Cabang Terima','Kode Barang'], right_on=['Tanggal_SJ','Cabang Penerima_SJ','Kode_SJ'],how='inner'),
                                 df_4205])
-                                df_sj1 = df_sj1.drop_duplicates(subset=df_sj1.columns[:19], keep='first')
+                                df_sj1 = df_sj1.drop_duplicates(subset=df_sj1.columns[:19], keep='first').reset_index(drop=True)
                                 
                                 if not df_sj[df_sj['Kode_SJ']==0].empty:
                                     df_sj1 = pd.concat([df_sj1,df_sj[df_sj['Kode_SJ']==0].drop(columns='Nomor_SJ').merge(df_sj1[['Nomor #Kirim','Nama File_SJ']].drop_duplicates(), on='Nama File_SJ', how='left').merge(
