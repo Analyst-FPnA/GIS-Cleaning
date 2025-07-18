@@ -22,6 +22,7 @@ from PIL import Image
 import sys
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, ColumnsAutoSizeMode, GridUpdateMode
 import base64
+Image.MAX_IMAGE_PIXELS = None
 
 key = "enterprise_disabled_grid"
 license_key = None
@@ -665,77 +666,86 @@ with col[1]:
                                 if tanggal in all_date:
                                     for cabang in os.listdir(f'{tmpdirname}/File SJ/{tanggal}'):
                                         if (cabang in all_cab) or ('All' in all_cab):
-                                            for filename in os.listdir(f'{tmpdirname}/File SJ/{tanggal}/{cabang}'):
-                                                if filename.endswith('pdf'):
-                                                    images = convert_from_bytes(open(f'{tmpdirname}/File SJ/{tanggal}/{cabang}/{filename}', "rb").read(), dpi=370,
-                                                        poppler_path=poppler_path)
-                                                else:
-                                                    images = [Image.open(f'{tmpdirname}/File SJ/{tanggal}/{cabang}/{filename}')]
+                                            for file in os.listdir(f'{tmpdirname}/File SJ/{tanggal}/{cabang}'):
+                                                try:
+                                                    if file.endswith('pdf'):
+                                                        images = convert_from_bytes(open(f'{tmpdirname}/File SJ/{tanggal}/{cabang}/{file}', "rb").read(), dpi=250,
+                                                            poppler_path=poppler_path)
+                                                    else:
+                                                        images = [Image.open(f'{tmpdirname}/File SJ/{tanggal}/{cabang}/{file}')]
 
-                                                namafile.append(filename)
-                                                fileimg.append(images)
+                                                    namafile.append(file)
+                                                    fileimg.append(images)
 
-                                                for img in images:
-                                                    text = pytesseract.image_to_string(img, config="--psm 6")
-                                                    nomor_match = re.search(r"Nomor\.?\s+(.*)", text)
-                                                    nomor = nomor_match.group(1) if nomor_match else ''
-                                                    if not (re.search(r"\d{5}", nomor)) and (("Pengiriman" in text) or (len(images)==1)):
-                                                        nomor = re.search(r"[\s.,]*\d{4}[\s.,]*\d{2}[\s.,]*\d{5}", text)
-                                                        nomor = nomor.group() if nomor else ""
+                                                    for img in images:
+                                                        max_width = 3000
+                                                        if img.width > max_width:
+                                                            ratio = max_width / img.width
+                                                            new_size = (max_width, int(img.height * ratio))
+                                                            img = img.resize(new_size, Image.LANCZOS)
+                                                        text = pytesseract.image_to_string(img, config="--psm 6")
+                                                        nomor_match = re.search(r"Nomor\.?\s+(.*)", text)
+                                                        nomor = nomor_match.group(1) if nomor_match else ''
+                                                        if not (re.search(r"\d{5}", nomor)) and (("Pengiriman" in text) or (len(images)==1)):
+                                                            nomor = re.search(r"[\s.,]*\d{4}[\s.,]*\d{2}[\s.,]*\d{5}", text)
+                                                            nomor = nomor.group() if nomor else ""
 
-                                                    lines = text.splitlines()
+                                                        lines = text.splitlines()
 
-                                                    keterangan_indices = [i for i, line in enumerate(lines) if "Keterangan :" in line]
-                                                    terima_index = next((i for i, line in enumerate(lines) if "Terima" in line), None)
+                                                        keterangan_indices = [i for i, line in enumerate(lines) if "Keterangan :" in line]
+                                                        terima_index = next((i for i, line in enumerate(lines) if "Terima" in line), None)
 
-                                                    # Ambil "Keterangan" terakhir yang muncul sebelum "Terima"
-                                                    start_index = None
-                                                    for idx in reversed(keterangan_indices):
-                                                        if terima_index is None or idx < terima_index:
-                                                            start_index = idx
-                                                            break
+                                                        # Ambil "Keterangan" terakhir yang muncul sebelum "Terima"
+                                                        start_index = None
+                                                        for idx in reversed(keterangan_indices):
+                                                            if terima_index is None or idx < terima_index:
+                                                                start_index = idx
+                                                                break
 
-                                                    # Ekstrak bagian teks di antaranya
-                                                    ket = ""
-                                                    if start_index is not None and terima_index is not None and start_index < terima_index:
-                                                        extracted_lines = lines[start_index + 1:terima_index]
-                                                        ket = "\n".join(extracted_lines)
+                                                        # Ekstrak bagian teks di antaranya
+                                                        ket = ""
+                                                        if start_index is not None and terima_index is not None and start_index < terima_index:
+                                                            extracted_lines = lines[start_index + 1:terima_index]
+                                                            ket = "\n".join(extracted_lines)
 
-                                                    items_section = re.findall(r"^\s*\d+\s+\d{6}\s+.*", text, re.MULTILINE)#re.search(r"Kode.*?(?=Keterangan\s*:)", text, re.DOTALL)
+                                                        items_section = re.findall(r"^\s*\d+\s+\d{6}\s+.*", text, re.MULTILINE)#re.search(r"Kode.*?(?=Keterangan\s*:)", text, re.DOTALL)
 
-                                                    if items_section:
-                                                        rows = [row.strip() for row in items_section]
-                                                        for row in rows:
-                                                            #r"^(\d+)\.?\s+(\d{6})\s+(.*?)\s+(\d+(?:\.\d+)?)\s+([A-Z]+)(?:\s+(.*))?$"
-                                                            match = re.match(r"^(\d+)\s+(\d{6})\s+(.*)\s+(\d+(?:[.,]\d+)?)\s+([A-Z]+)\s*(.*)$", row)
-                                                            if match:
-                                                                no, kode, nama, kts, satuan, keterangan = match.groups()
-                                                                all_dfs.append({
-                                                                        "Cabang Penerima_SJ":cabang,
-                                                                        "Tanggal_SJ": tanggal,
-                                                                        "Nomor_SJ": nomor,
-                                                                        "Kode_SJ": kode,
-                                                                        "Nama Barang_SJ": nama.strip(),
-                                                                        "Kts_SJ": kts,
-                                                                        "Satuan_SJ": satuan.strip(),
-                                                                        "Keterangan_SJ": ket,
-                                                                        "Nama File_SJ": filename
-                                                                    })
-                                                    if ket.splitlines():
-                                                        for k in ket.splitlines():
-                                                            match = re.match(r"^(.*\S)\s+(\d+)\s+([A-Z]+)$", k.strip())
-                                                            if match:
-                                                                all_dfs.append({
-                                                                                "Cabang Penerima_SJ":cabang,
-                                                                                "Tanggal_SJ": tanggal,
-                                                                                "Nomor_SJ": nomor,
-                                                                                "Kode_SJ": 0,
-                                                                                "Nama Barang_SJ": match.group(1),
-                                                                                "Kts_SJ": match.group(2),
-                                                                                "Satuan_SJ": match.group(3),
-                                                                                "Keterangan_SJ": ket,
-                                                                                "Nama File_SJ": filename
-                                                                            })
+                                                        if items_section:
+                                                            rows = [row.strip() for row in items_section]
+                                                            for row in rows:
+                                                                #r"^(\d+)\.?\s+(\d{6})\s+(.*?)\s+(\d+(?:\.\d+)?)\s+([A-Z]+)(?:\s+(.*))?$"
+                                                                match = re.match(r"^(\d+)\s+(\d{6})\s+(.*)\s+(\d+(?:[.,]\d+)?)\s+([A-Z]+)\s*(.*)$", row)
+                                                                if match:
+                                                                    no, kode, nama, kts, satuan, keterangan = match.groups()
+                                                                    all_dfs.append({
+                                                                            "Cabang Penerima_SJ":cabang,
+                                                                            "Tanggal_SJ": tanggal,
+                                                                            "Nomor_SJ": nomor,
+                                                                            "Kode_SJ": kode,
+                                                                            "Nama Barang_SJ": nama.strip(),
+                                                                            "Kts_SJ": kts,
+                                                                            "Satuan_SJ": satuan.strip(),
+                                                                            "Keterangan_SJ": ket,
+                                                                            "Nama File_SJ": file
+                                                                        })
+                                                        if ket.splitlines():
+                                                            for k in ket.splitlines():
+                                                                match = re.match(r"^(.*\S)\s+(\d+)\s+([A-Z]+)$", k.strip())
+                                                                if match:
+                                                                    all_dfs.append({
+                                                                                    "Cabang Penerima_SJ":cabang,
+                                                                                    "Tanggal_SJ": tanggal,
+                                                                                    "Nomor_SJ": nomor,
+                                                                                    "Kode_SJ": 0,
+                                                                                    "Nama Barang_SJ": match.group(1),
+                                                                                    "Kts_SJ": match.group(2),
+                                                                                    "Satuan_SJ": match.group(3),
+                                                                                    "Keterangan_SJ": ket,
+                                                                                    "Nama File_SJ": file
+                                                                                })
+                                                except Exception as e:
+                                                    st.print(file)
+
                             df_sj = pd.DataFrame(all_dfs)
 
                             all_dfs = []
@@ -774,46 +784,52 @@ with col[1]:
                                         return(formatted)
                                     else:
                                         return(entry)
+                            try:
+                                df_sj['Nomor_SJ'] = df_sj['Nomor_SJ'].apply(lambda x: clean_it(x))
+                                df_sj['Kode_SJ'] = df_sj['Kode_SJ'].astype(int)
 
-                            df_sj['Nomor_SJ'] = df_sj['Nomor_SJ'].apply(lambda x: clean_it(x))
-                            df_sj['Kode_SJ'] = df_sj['Kode_SJ'].astype(int)
-
-                            df_sj1 = df_4205.merge(df_sj, left_on=['Nomor #Kirim', 'Cabang Terima','Kode Barang'], right_on=['Nomor_SJ','Cabang Penerima_SJ','Kode_SJ'],how='inner')
-                            df_sj1 = pd.concat([df_sj1,
-                            df_4205.merge(df_sj[~df_sj['Nama File_SJ'].isin(df_sj1['Nama File_SJ'].unique())], left_on=['Tanggal', 'Cabang Terima','Kode Barang'], right_on=['Tanggal_SJ','Cabang Penerima_SJ','Kode_SJ'],how='inner'),
-                            df_4205])
-                            df_sj1 = df_sj1.drop_duplicates(subset=df_sj1.columns[:19], keep='first')
-                            
-                            if not df_sj[df_sj['Kode_SJ']==0].empty:
-                                df_sj1 = pd.concat([df_sj1,df_sj[df_sj['Kode_SJ']==0].drop(columns='Nomor_SJ').merge(df_sj1[['Nomor #Kirim','Nama File_SJ']].drop_duplicates(), on='Nama File_SJ', how='left').merge(
-                                    df_4205.iloc[:,1:8].drop_duplicates(), how='left', on=['Nomor #Kirim'])])
-                            
-                            df_sj = df_sj1
-                            df_sj['#Qty Kirim'] = df_sj['#Qty Kirim'].astype(float)
-                            df_sj['Kts_SJ'] = df_sj['Kts_SJ'].str.replace('.','').str.replace(',','.').astype(float)
-                            df_sj['Selisih'] = df_sj['#Qty Kirim'] - df_sj['Kts_SJ']
-                            i = df_sj[(df_sj['Selisih']!=0) & ~(df_sj['Selisih'].isna()) & ~(df_sj['Nomor #Kirim'].isna())
-                                & (df_sj['Nama Barang_SJ'].fillna('').apply(lambda x: True if re.search(r"(\d+(?:[.,]\d+)?)\s+([A-Z]{2,})\s*[-–—]?$",x) else False))].index
-                            if not i.empty:
-                                val = df_sj.loc[i,'Nama Barang_SJ'].apply(lambda x: re.match(r"^(.*)\s+(\d+(?:[.,]\d+)?)\s+([A-Z]{2,})\s*[-–—]?\s*$", x) if re.match(r"^(.*)\s+(\d+(?:[.,]\d+)?)\s+([A-Z]{2,})\s*[-–—]?\s*$", x) else '')
-                                df_sj.loc[i,'Nama Barang_SJ'] = val.apply(lambda x:x.group(1))
-                                df_sj.loc[i,'Kts_SJ'] = val.apply(lambda x:x.group(2))
-                                df_sj.loc[i,'Satuan_SJ'] = val.apply(lambda x:x.group(3))
-                                df_sj.loc[i,'Kts_SJ'] = df_sj.loc[i,'Kts_SJ'].apply(str).str.replace('.','').str.replace(',','.').astype(float)
-                                df_sj['Selisih'] = df_sj['#Qty Kirim'] - df_sj['Kts_SJ']
+                                df_sj1 = df_4205.merge(df_sj, left_on=['Nomor #Kirim', 'Cabang Terima','Kode Barang'], right_on=['Nomor_SJ','Cabang Penerima_SJ','Kode_SJ'],how='inner')
+                                df_sj1 = pd.concat([df_sj1,
+                                df_4205.merge(df_sj[~df_sj['Nama File_SJ'].isin(df_sj1['Nama File_SJ'].unique())], left_on=['Tanggal', 'Cabang Terima','Kode Barang'], right_on=['Tanggal_SJ','Cabang Penerima_SJ','Kode_SJ'],how='inner'),
+                                df_4205])
+                                df_sj1 = df_sj1.drop_duplicates(subset=df_sj1.columns[:19], keep='first')
                                 
-                            df_sj = df_sj.drop(columns=['Nama File_SJ','Keterangan_SJ']).merge(df_sj[['Nomor #Kirim','Nama File_SJ']].sort_values(['Nomor #Kirim','Nama File_SJ']).drop_duplicates().dropna(),
-                                        on='Nomor #Kirim', how='left')
-                            df_sj = df_sj.drop(columns=['index','Tanggal','Cabang Terima','Status Pengiriman #','#Tgl/Jam Pembuatan RI','#Tgl Kirim vs Tgl Terima','Cabang Penerima_SJ','Nomor_SJ','Tanggal_SJ']).sort_values(['Nama File_SJ']).fillna('')
-                            
-                            st.session_state.df_sj = df_sj 
-                            st.session_state.df_file_sj = pd.DataFrame({'Nama File_SJ':namafile,'Images':fileimg})
-                            st.success('Success',icon='✅')
-                            st.download_button(
-                                label="Download",
-                                data=to_excel(df_sj),
-                                file_name=f'CHECK SJ_{get_current_time_gmt7()}.xlsx',
-                                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                                if not df_sj[df_sj['Kode_SJ']==0].empty:
+                                    df_sj1 = pd.concat([df_sj1,df_sj[df_sj['Kode_SJ']==0].drop(columns='Nomor_SJ').merge(df_sj1[['Nomor #Kirim','Nama File_SJ']].drop_duplicates(), on='Nama File_SJ', how='left').merge(
+                                        df_4205.iloc[:,1:8].drop_duplicates(), how='left', on=['Nomor #Kirim'])])
+                                
+                                df_sj = df_sj1
+                                df_sj['#Qty Kirim'] = df_sj['#Qty Kirim'].astype(float)
+                                df_sj['Kts_SJ'] = df_sj['Kts_SJ'].str.replace('.','').str.replace(',','.').astype(float)
+                                df_sj['Selisih'] = df_sj['#Qty Kirim'] - df_sj['Kts_SJ']
+                                i = df_sj[(df_sj['Selisih']!=0) & ~(df_sj['Selisih'].isna()) & ~(df_sj['Nomor #Kirim'].isna())
+                                    & (df_sj['Nama Barang_SJ'].fillna('').apply(lambda x: True if re.search(r"(\d+(?:[.,]\d+)?)\s+([A-Z]{2,})\s*[-–—]?$",x) else False))].index
+                                if not i.empty:
+                                    val = df_sj.loc[i,'Nama Barang_SJ'].apply(lambda x: re.match(r"^(.*)\s+(\d+(?:[.,]\d+)?)\s+([A-Z]{2,})\s*[-–—]?\s*$", x) if re.match(r"^(.*)\s+(\d+(?:[.,]\d+)?)\s+([A-Z]{2,})\s*[-–—]?\s*$", x) else '')
+                                    df_sj.loc[i,'Nama Barang_SJ'] = val.apply(lambda x:x.group(1))
+                                    df_sj.loc[i,'Kts_SJ'] = val.apply(lambda x:x.group(2))
+                                    df_sj.loc[i,'Satuan_SJ'] = val.apply(lambda x:x.group(3))
+                                    df_sj.loc[i,'Kts_SJ'] = df_sj.loc[i,'Kts_SJ'].apply(str).str.replace('.','').str.replace(',','.').astype(float)
+                                    df_sj['Selisih'] = df_sj['#Qty Kirim'] - df_sj['Kts_SJ']
+                                    
+                                df_sj = df_sj.drop(columns=['Nama File_SJ','Keterangan_SJ']).merge(df_sj[['Nomor #Kirim','Nama File_SJ']].sort_values(['Nomor #Kirim','Nama File_SJ']).drop_duplicates().dropna(),
+                                            on='Nomor #Kirim', how='left')
+                                df_sj = df_sj.drop(columns=['index','Tanggal','Cabang Terima','Status Pengiriman #','#Tgl/Jam Pembuatan RI','#Tgl Kirim vs Tgl Terima','Cabang Penerima_SJ','Nomor_SJ','Tanggal_SJ']).sort_values(['Nama File_SJ']).fillna('')
+                                
+                                st.session_state.df_sj = df_sj 
+                                st.session_state.df_file_sj = pd.DataFrame({'Nama File_SJ':namafile,'Images':fileimg})
+                                st.success('Success',icon='✅')
+                                st.download_button(
+                                    label="Download",
+                                    data=to_excel(df_sj),
+                                    file_name=f'CHECK SJ_{get_current_time_gmt7()}.xlsx',
+                                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                            except Exception as e:
+                                st.session_state.df_sj = pd.DataFrame()
+                                st.error('Tidak ada File SJ yang dapat terbaca')
+
+
+ 
 
                     if selected_option == 'REKAP SALES ESB & GIS':
                         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -865,6 +881,31 @@ if selected_option == 'OCR-SJ':
     try:
         st.write(' ')
         df_sj = st.session_state.df_sj
+        if df_sj.empty and (not st.session_state.dfh.empty):
+            df_sj_cek = st.session_state.dfh.sort_values(['Check','Nama File_SJ','Gudang #Terima','Nomor #Kirim'], ascending=[False,False,False,False]).drop_duplicates(['Nomor #Kirim','Tanggal #Kirim','Gudang #Terima'],keep='first')
+            gb = GridOptionsBuilder.from_dataframe(df_sj_cek)
+            
+            gb.configure_default_column(filter=True, sortable=True,
+                flex=0,
+                resizable=True,
+                minWidth=130,
+                enableValue=True,
+                enableRowGroup=True
+            )
+            editable_columns = ['Check', 'Note']
+            for col in editable_columns:
+                gb.configure_column(col, editable=True)
+            gb = gb.build()
+            AgGrid(
+                df_sj_cek,
+                gb, update_mode=GridUpdateMode.NO_UPDATE,
+                enable_enterprise_modules=enable_enterprise,
+                allow_unsafe_jscode=True,
+                fit_columns_on_grid_load=True,
+                #license_key=license_key,
+                #key=key,
+            )
+            st.stop()      
         df_file_sj = st.session_state.df_file_sj 
         df_sj_cek = df_sj[['Nomor #Kirim','Gudang #Terima','Tanggal #Kirim','Nama File_SJ']].drop_duplicates().merge(
             df_sj[['Nomor #Kirim', 'Selisih']].replace('',1)
@@ -934,9 +975,8 @@ if selected_option == 'OCR-SJ':
                 #key=key,
             )
         with kol[1]:
-                
-                filename = st.selectbox("Pilih File",df_file_sj['Nama File_SJ'].unique().tolist(),key='select_file')
-                images = df_file_sj[df_file_sj['Nama File_SJ']==filename]['Images'].values[0]
+                file = st.selectbox("Pilih File",df_file_sj['Nama File_SJ'].unique().tolist(),key='select_file')
+                images = df_file_sj[df_file_sj['Nama File_SJ']==file]['Images'].values[0]
                 if 'halaman' not in st.session_state:
                     st.session_state.halaman = 0
 
