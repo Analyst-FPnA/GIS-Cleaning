@@ -835,7 +835,7 @@ with col[1]:
                         with tempfile.TemporaryDirectory() as tmpdirname:
                             with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
                                 zip_ref.extractall(tmpdirname)
-
+                            df_esb=[]
                             for file in os.listdir(tmpdirname):
                                 if file.startswith('4121'):
                                     df_4121 = pd.read_excel(os.path.join(tmpdirname, file), header=4)
@@ -847,8 +847,10 @@ with col[1]:
                                     df_2205 = df_2205.loc[:, ~df_2205.columns.str.startswith('Unnamed:')]
                                     db_2205 = df_2205[['Kode #','Nama Barang','Satuan']].drop_duplicates()
                                 if file.startswith('Daily'):
-                                    df_esb = pd.read_excel(os.path.join(tmpdirname, file), header=12)
-                                    df_esb = df_esb[df_esb['Type'].isin(['Ala Carte', 'Package Head'])]
+                                    df = pd.read_excel(os.path.join(tmpdirname, file), header=12)
+                                    df = df[df['Type'].isin(['Ala Carte', 'Package Head'])]
+                                    df_esb.append(df)
+                            df_esb = pd.concat(df_esb, ignore_index=True)
                             df_esb = df_esb[['Branch','Sales Date','Menu Name','Menu Code','Qty']].assign(**{'Menu Code': df_esb['Menu Code'].astype(str)}).merge(df_4121[['Kode Barang Grup Barang','Kode Barang','Kuantitas']].rename(columns={'Kode Barang Grup Barang':'Menu Code'}), on='Menu Code', how='left')
                             df_esb = df_esb.assign(**{'Kuantitas_ESB':df_esb['Kuantitas'] * df_esb['Qty'],
                                             'Branch':df_esb['Branch'].str.extract(r'\.(.+)')}).groupby(['Branch','Sales Date','Kode Barang'])[['Kuantitas_ESB']].sum().reset_index().merge(
