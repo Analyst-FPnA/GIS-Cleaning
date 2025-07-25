@@ -1,4 +1,4 @@
-version = "v2.1.4"
+version = "v2.1.5"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.4
+            New Version Update Details: v2.1.5
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Improvement of the OCR-SJ module [SCM-Processing] error related to pixel size limitations</li>
+            <li>Improvement of the REKAP SALES ESB & GIS module [SCM-Processing]</li>
         </ul>
         </div>
         """
