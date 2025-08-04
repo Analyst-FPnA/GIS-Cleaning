@@ -1,4 +1,4 @@
-version = "v2.1.5"
+version = "v2.1.6"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -14,7 +14,7 @@ detail = """
             New Version Update Details: v2.1.5
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Improvement of the REKAP SALES ESB & GIS module [SCM-Processing], An ESB File may consist of more than one file</li>
+            <li>Improvement of the Penyesuaian IA module [SCM-Processing]</li>
         </ul>
         </div>
         """
