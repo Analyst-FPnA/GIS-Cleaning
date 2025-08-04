@@ -11,7 +11,7 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.5
+            New Version Update Details: v2.1.6
         </div>
         <ul style="padding-left: 18px; margin: 0;">
             <li>Improvement of the Penyesuaian IA module [SCM-Processing]</li>
