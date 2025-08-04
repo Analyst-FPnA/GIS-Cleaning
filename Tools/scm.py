@@ -424,6 +424,7 @@ with col[1]:
                                                         if col in df.columns:
                                                             df.loc[mask_penambahan, col] = df.loc[mask_penambahan, col] * -1
                                                 df = df.loc[:, ~df.columns.str.startswith('Unnamed')]
+                                                df['Gudang'] = df[['Gudang']].assign(text=df['Gudang'].apply(lambda x: len(x))).sort_values('text', ascending=False).iloc[0,0]
                                                 if 'Gudang' in df.columns:
                                                     def transform_gudang(val):
                                                         try:
