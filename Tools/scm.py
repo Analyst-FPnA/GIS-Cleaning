@@ -408,7 +408,7 @@ with col[1]:
 
                                 all_dfs = []
                                 for file in os.listdir(tmpdirname):
-                                    if file.startswith('penyesuaian') and file.endswith(('.xlsx', '.xls', '.csv')):
+                                    if file.endswith(('.xlsx', '.xls', '.csv')):
                                                 if file.endswith('.csv'):
                                                     df = pd.read_csv(os.path.join(tmpdirname, file), skiprows=9)
                                                 else:
