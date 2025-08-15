@@ -1,4 +1,4 @@
-version = "v2.1.7"
+version = "v2.1.8"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.7
+            New Version Update Details: v2.1.8
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Improvement of the Penyesuaian IA module [SCM-Processing]</li>
+            <li>Fixing the Error on 42.15 module [GIS-Processing]</li>
         </ul>
         </div>
         """
