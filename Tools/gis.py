@@ -759,8 +759,7 @@ with col[1]:
                                 for file in uploaded_file:
                                     df_4215 = pd.read_excel(file, header=4).fillna('')
                                     df_4215 = df_4215.iloc[:-5]
-                                    df_4215 = df_4215.drop(columns=['Unnamed: 0','Nomor # Permintaan Barang'])
-                                    df_4215.rename(columns=lambda x: '' if 'Unnamed' in x else x, inplace=True)
+                                    df_4215 = df_4215.loc[:, ~df_4215.columns.str.startswith('Unnamed')]
                                     df_4215['Tanggal']              =   pd.to_datetime(df_4215['Tanggal'], format='%d-%b-%y').dt.strftime('%d %b %Y')
                                     df_4215['Tgl/Jam Pembuatan']    =   pd.to_datetime(df_4215['Tgl/Jam Pembuatan'], format='%d-%b-%Y %H:%M:%S').dt.strftime('%d %b %Y %H:%M:%S')
                                     concatenated_df.append(df_4215)
@@ -1042,4 +1041,5 @@ with col[1]:
                     traceback.print_exc()
         else:
             st.write(' ')
+
 
