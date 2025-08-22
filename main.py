@@ -5,6 +5,20 @@ import io
 import os
 import zipfile
 
+st.set_page_config(
+    page_title="DEX",
+    page_icon="ikon.ico",
+    layout="wide"
+)
+
+st.markdown("""
+        <style>
+               .block-container {
+                    padding-top: 3rem;
+                }
+        </style>
+        """, unsafe_allow_html=True)
+
 with open("version.py", "r", encoding="utf-8") as f:
     file_content = f.read()
 
@@ -14,11 +28,6 @@ exec(file_content, namespace)
 version = namespace.get("version")
 data= namespace.get("data")
 
-st.set_page_config(
-    page_title="DEX",
-    page_icon="ikon.ico",
-    layout="wide"
-)
 
 if 'DEX.exe' not in os.listdir():
     dir_main = 'Main/'
@@ -53,9 +62,13 @@ else:
 page_1 = st.Page(dir_main + "Tools/gis.py", title="GIS-Processing")
 page_2 = st.Page(dir_main + "Tools/scm.py", title="SCM-Processing")
 page_3 = st.Page(dir_main + "Tools/home.py", title="Home")
+page_4 = st.Page(dir_main + "Analytics/COM Monitoring.py", title="COM Monitoring")
 
-current_page = st.navigation(pages=[page_1,page_2,page_3], position="hidden")
-pages_by_group = {
+
+current_page = st.navigation(pages=[page_1,page_2,page_3,page_4], position="hidden")
+pages_by_group = {'📊 Analytics':[
+                    {'title':'COM Monitoring','page': dir_main + 'Analytics/COM Monitoring.py'} 
+                    ],
                   '🧰 Tools':[
                     {'title':'GIS-Processing','page': dir_main + 'Tools/gis.py'}, 
                     {'title':'SCM-Processing','page': dir_main + 'Tools/scm.py'}]
