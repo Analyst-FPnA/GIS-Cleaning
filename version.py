@@ -1,4 +1,4 @@
-version = "v2.1.9"
+version = "v2.1.10"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.9
+            New Version Update Details: v2.1.10
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>New Page [COM-Monitoring]</li>
+            <li>Resolving the issue in the export feature of [COM Monitoring]</li>
         </ul>
         </div>
         """
