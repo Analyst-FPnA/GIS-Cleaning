@@ -285,7 +285,10 @@ with tab[0]:
                         'criteria': formula_yellow,
                         'format': yellow
                     })
-
+    kol = st.columns([1.3,6,0.75])
+    with kol[2]:
+        if st.button('Export', key='export-deviasi'):
+            export_with_excel_icons_inplace(df_deviasi, angka_cols,'Data/COM Monitoring/Output/REKAP_DEVIASI.xlsx')
 
     gb = GridOptionsBuilder.from_dataframe(df_deviasi)
 
@@ -373,10 +376,8 @@ with tab[0]:
         df_deviasi,
         gridOptions, update_mode=GridUpdateMode.NO_UPDATE,
         enable_enterprise_modules=enable_enterprise,
-        allow_unsafe_jscode=True,custom_css=custom_css)
+        allow_unsafe_jscode=True,custom_css=custom_css, height=570)
     
-    if st.button('Export', key='export-deviasi'):
-        export_with_excel_icons_inplace(df_deviasi, angka_cols,'Data/COM Monitoring/Output/REKAP_DEVIASI.xlsx')
 
 with tab[1]:
     df_2205 = df_2205[df_2205['TANGGAL']<=int(tanggal)]
@@ -400,7 +401,7 @@ with tab[1]:
     for col in angka_cols:
         merged[col] = merged[f"{col}_x"] / merged[f"{col}_y"] * 100
 
-    result = merged[['CABANG','NAMA BARANG','SATUAN'] + [col for col in angka_cols]]
+    result = merged[['CABANG','NAMA BARANG','SATUAN'] + [col for col in angka_cols]].replace([np.nan, np.inf, -np.inf],0)
     result['mean'] = result[angka_cols].mean(axis=1)
     result['std'] = result[angka_cols].std(axis=1)
     result['TOTAL '] = result[angka_cols].sum(axis=1)
@@ -411,7 +412,7 @@ with tab[1]:
         lambda x: ((((x[angka_cols] - x['mean']) / x['std']) < -ts_waste_down))if (x['std'] != 0 and x['SATUAN'] not in ['PCS']) else [False]*len(angka_cols),
         axis=1, result_type='expand'
     )
-
+    
     color4 = result.apply(
         lambda x: ((((x[angka_cols] - x['mean']) / x['std']) > ts_waste_up))if (x['std'] != 0)  else [False]*len(angka_cols),
         axis=1, result_type='expand'
@@ -426,6 +427,7 @@ with tab[1]:
         lambda x: np.abs(x[angka_cols]) > 0 if x['TOTAL'] == 0 else [False]*len(angka_cols),
         axis=1, result_type='expand'
     )
+    
     color3.columns = angka_cols
     color = color1 | color2 | color3 | color4
     color.columns = angka_cols
@@ -448,10 +450,17 @@ with tab[1]:
                     if row[f"{col}_outlier"]:
                         worksheet.write(row_idx+1, df.columns.get_loc(col), row[col], red_format)
 
-    outlier_waste = st.radio(
-        "Hanya Tampilkan Outlier:",
-        ("Iya","Tidak"), key='outlier_waste'
-    )
+    kol = st.columns([1.3,6,0.75])
+    with kol[0]:
+        outlier_waste = st.radio(
+            "Hanya Tampilkan Outlier:",
+            ("Iya","Tidak"), key='outlier_waste'
+        )
+    with kol[2]:
+        st.write(' ')
+        st.write(' ')
+        if st.button('Export', key='export-waste'):
+            export_with_color(df_waste, angka_cols,'Data/COM Monitoring/Output/REKAP_WASTE.xlsx')
 
     if outlier_waste == "Iya": 
         df_waste = df_waste[df_waste['is_outlier']]
@@ -508,9 +517,8 @@ with tab[1]:
         df_waste,
         gridOptions, update_mode=GridUpdateMode.NO_UPDATE,
         enable_enterprise_modules=enable_enterprise,
-        allow_unsafe_jscode=True,custom_css=custom_css)
-    if st.button('Export', key='export-waste'):
-        export_with_color(df_waste, angka_cols,'Data/COM Monitoring/Output/REKAP_WASTE.xlsx')
+        allow_unsafe_jscode=True,custom_css=custom_css,height=570)
+
 
 with tab[2]:
     kol = st.columns([1,1,4])
@@ -604,10 +612,17 @@ with tab[2]:
                     if row[f"{col}_outlier"]:
                         worksheet.write(row_idx+1, df.columns.get_loc(col), row[col], red_format)
 
-    outlier_susut = st.radio(
-        "Hanya Tampilkan Outlier:",
-        ("Iya","Tidak"), key='outlier_susut'
-    )
+    kol = st.columns([1.3,6,0.75])
+    with kol[0]:
+        outlier_susut = st.radio(
+            "Hanya Tampilkan Outlier:",
+            ("Iya","Tidak"), key='outlier_susut'
+        )
+    with kol[2]:
+        st.write(' ')
+        st.write(' ')
+        if st.button('Export', key='export-susut'):
+            export_with_color(df_susut, angka_cols,'Data/COM Monitoring/Output/REKAP_SUSUT.xlsx')
 
     if outlier_susut == "Iya": 
         df_susut = df_susut[df_susut['is_outlier']]
@@ -664,9 +679,7 @@ with tab[2]:
         df_susut,
         gridOptions, update_mode=GridUpdateMode.NO_UPDATE,
         enable_enterprise_modules=enable_enterprise,
-        allow_unsafe_jscode=True,custom_css=custom_css)
-    if st.button('Export', key='export-susut'):
-        export_with_color(df_susut, angka_cols,'Data/COM Monitoring/Output/REKAP_SUSUT.xlsx')
+        allow_unsafe_jscode=True,custom_css=custom_css, height=570)
 
 with tab[3]:
     kol = st.columns([1,1,4])
@@ -724,9 +737,16 @@ with tab[3]:
                     if row[f"{col}_outlier"]:
                         worksheet.write(row_idx+1, df.columns.get_loc(col), row[col], red_format)
 
-    outlier_trial = st.radio(
-        "Hanya Tampilkan Outlier:",
-        ("Iya","Tidak"), key='outlier_trial')
+    kol = st.columns([1.3,6,0.75])
+    with kol[0]:
+        outlier_trial = st.radio(
+            "Hanya Tampilkan Outlier:",
+            ("Iya","Tidak"), key='outlier_trial')
+    with kol[2]:
+        st.write(' ')
+        st.write(' ')
+        if st.button('Export', key='export-trial'):
+            export_with_color(df_trial, angka_cols,'Data/COM Monitoring/Output/REKAP_TRIAL.xlsx')
 
     if outlier_trial == "Iya": 
         df_trial = df_trial[df_trial['is_outlier']]
@@ -783,6 +803,5 @@ with tab[3]:
         df_trial,
         gridOptions, update_mode=GridUpdateMode.NO_UPDATE,
         enable_enterprise_modules=enable_enterprise,
-        allow_unsafe_jscode=True,custom_css=custom_css)
-    if st.button('Export', key='export-trial'):
-        export_with_color(df_trial, angka_cols,'Data/COM Monitoring/Output/REKAP_TRIAL.xlsx')
+        allow_unsafe_jscode=True,custom_css=custom_css, height=570)
+
