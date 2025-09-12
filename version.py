@@ -1,4 +1,4 @@
-version = "v2.1.10"
+version = "v2.1.11"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.10
+            New Version Update Details: v2.1.11
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Resolving the issue in the export feature of [COM Monitoring]</li>
+            <li>New item added to the REKAP DATA BOM-DEVIASI [SCM-Processing]</li>
         </ul>
         </div>
         """
