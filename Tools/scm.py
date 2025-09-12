@@ -578,7 +578,7 @@ with col[1]:
                                     df_3224 = pd.read_excel(dir_raw+file, skiprows=range(0, 4))
                                     df_3224 = df_3224.loc[:,['Tanggal','Nomor # PO','Nomor # RI','Pemasok','Kode #','Nama Barang','Kts Terima','Satuan','@Harga','Total Harga','#Kts Ditagih','Nama Gudang','Nama Cabang Penerimaan Barang','Status Penerimaan Barang','Pembuat Data','Tgl/Jam Pembuatan']]
                                     df_3224 = df_3224[~df_3224['Nomor # PO' ].isna()]
-                                    df_3224 = df_3224[df_3224['Nama Barang']=='KABEL TIES - RESTO'].groupby(['Nama Cabang Penerimaan Barang','Nama Barang'])[['Kts Terima','Total Harga']].sum().reset_index().rename(columns={'Nama Cabang Penerimaan Barang':'Nama Cabang','Kts Terima':'QTY RI','Total Harga':'NOMINAL RI'})
+                                    df_3224 = df_3224[df_3224['Nama Barang'].isin(['KABEL TIES - RESTO','PLASTIK KLIP RESTO'])].groupby(['Nama Cabang Penerimaan Barang','Nama Barang'])[['Kts Terima','Total Harga']].sum().reset_index().rename(columns={'Nama Cabang Penerimaan Barang':'Nama Cabang','Kts Terima':'QTY RI','Total Harga':'NOMINAL RI'})
                                 if file.startswith('1333'):
                                     omset = pd.read_excel(dir_raw+file, header=2).drop_duplicates().rename(columns={'Row Labels':'Nama Cabang'})[['Nama Cabang','OMSET']]
                                 if file.startswith('DATA WASUTRI'):
@@ -613,8 +613,8 @@ with col[1]:
                             data['NOMINAL USAGE'] = data['NOMINAL USAGE'].replace('',0)
                             data.loc[data[data['STATUS']=='USAGE'].index,'QTY DEVIASI'] = 0
                             data.loc[data[data['STATUS']=='USAGE'].index,'NOMINAL DEVIASI'] = 0
-                            data.loc[data[(data['Nama Barang']=='KABEL TIES - RESTO') & ~(data['QTY RI'].isna())].index,'QTY USAGE'] = - data[(data['Nama Barang']=='KABEL TIES - RESTO') & ~(data['QTY RI'].isna())]['QTY RI']
-                            data.loc[data[(data['Nama Barang']=='KABEL TIES - RESTO') & ~(data['NOMINAL RI'].isna())].index,'NOMINAL USAGE'] = - data[(data['Nama Barang']=='KABEL TIES - RESTO') & ~(data['NOMINAL RI'].isna())]['NOMINAL RI']
+                            data.loc[data[(data['Nama Barang'].isin(['KABEL TIES - RESTO','PLASTIK KLIP RESTO'])) & ~(data['QTY RI'].isna())].index,'QTY USAGE'] = - data[(data['Nama Barang'].isin(['KABEL TIES - RESTO','PLASTIK KLIP RESTO'])) & ~(data['QTY RI'].isna())]['QTY RI']
+                            data.loc[data[(data['Nama Barang'].isin(['KABEL TIES - RESTO','PLASTIK KLIP RESTO'])) & ~(data['NOMINAL RI'].isna())].index,'NOMINAL USAGE'] = - data[(data['Nama Barang'].isin(['KABEL TIES - RESTO','PLASTIK KLIP RESTO'])) & ~(data['NOMINAL RI'].isna())]['NOMINAL RI']
 
                             data['NOMINAL SUSUT'] = data['QTY SUSUT'] * data['Harga']
                             data['NOMINAL WASTE'] = data['QTY WASTE'] * data['Harga']
