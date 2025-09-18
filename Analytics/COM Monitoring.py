@@ -143,7 +143,28 @@ with kol[1]:
                 df_4205['Tanggal #Terima'] = pd.to_datetime(df_4205['Tanggal #Terima'], format='%d-%b-%y')
                 df_4205 = df_4205.assign(**{'Gudang #Terima':df_4205['Gudang #Terima'].str.extract(r'\(([^()]*)\)')[0].values,
                                 'TANGGAL':(df_4205['Tanggal #Terima'].dt.strftime('%d').astype('int').astype('str'))}).rename(columns={'Gudang #Terima':'CABANG','Nama Barang':'NAMA BARANG','#Qty. Terkecil':'4205'}).groupby(['CABANG','TANGGAL','NAMA BARANG'])[['4205']].sum().reset_index().to_csv('Data/COM Monitoring/Output/.csv/4205.csv',index=False)
-                
+
+            if file.startswith('3224'):
+                df_3224 = pd.read_excel('Data/COM Monitoring/Raw Data'+'/'+file, skiprows=4)
+                df_3224 = df_3224.loc[:, ~df_3224.columns.str.startswith('Unnamed:')].iloc[:-5,:]
+                df_knv = pd.read_excel("Data/COM Monitoring/Database/KONVERSI SATUAN.xlsx")
+                df_knv['Kode Barang'] = df_knv['Kode Barang'].replace(200442,410275)
+                dfs = []
+                for i in [' #2', ' #3', ' #4',' #5']:
+                    dfs.append(df_knv[['Kode Barang','Satuan','Satuan'+i,'Rasio Satuan'+i]].rename(
+                        columns={'Satuan':'Satuan Terkecil','Satuan'+i:'Satuan','Rasio Satuan'+i:'Rasio Satuan'}))
+                df_sat = pd.concat(dfs)
+                df_sat = df_sat.drop_duplicates()
+                df_sat.loc[df_sat['Satuan'].isna(),'Satuan'] = df_sat.loc[df_sat['Satuan'].isna(),'Satuan Terkecil']
+                df_sat.loc[df_sat['Rasio Satuan'].isna(),'Rasio Satuan'] = 1
+
+                df_3224 = df_3224.merge(df_sat, left_on=['Kode #','Satuan'], right_on=['Kode Barang','Satuan'], how='left')
+                df_3224['Satuan Terkecil'] = df_3224['Satuan Terkecil'].fillna(df_3224['Satuan'])
+                df_3224['Rasio Satuan'] = df_3224['Rasio Satuan'].fillna(1)
+                df_3224['Kts Terkecil'] = df_3224['Kts Terima'] * df_3224['Rasio Satuan']
+                df_3224['Tanggal'] = pd.to_datetime(df_3224['Tanggal']).dt.strftime('%d').astype('int').astype('str')
+                df_3224.assign(**{'Nama Cabang Penerimaan Barang':df_3224['Nama Cabang Penerimaan Barang'].str[5:]}).groupby(['Nama Cabang Penerimaan Barang','Tanggal','Nama Barang'])['Kts Terkecil'].sum().reset_index().rename(columns={'Nama Cabang Penerimaan Barang':'CABANG','Tanggal':'TANGGAL','Nama Barang':'NAMA BARANG','Kts Terkecil':'3224'}).to_csv('Data/COM Monitoring/Output/.csv/3224.csv',index=False)
+        
             if file.startswith('4217'):
                 df_4217 = pd.read_excel('Data/COM Monitoring/Raw Data'+'/'+file, header=4).fillna('')
                 df_4217 = df_4217.drop(columns=[x for x in df_4217.reset_index().T[(df_4217.reset_index().T[1]=='')].index if 'Unnamed' in x])
@@ -201,6 +222,7 @@ try:
     df_4205['NAMA BARANG'] = df_4205['NAMA BARANG'].str.replace('MINYAK MIE SHALLOT OIL','MINYAK MIE (V.20)')
     df_4205 = df_4205.groupby(['CABANG','TANGGAL','NAMA BARANG'])[['4205']].sum().reset_index()
     df_2205 = pd.read_csv('Data/COM Monitoring/Output/.csv/2205.csv')
+    df_3224 = pd.read_csv('Data/COM Monitoring/Output/.csv/3224.csv')
 
 except FileNotFoundError:
     st.error("File 'REKAP MENTAH.xlsx' tidak ditemukan")   
@@ -219,19 +241,24 @@ tab = st.tabs(['DEVIASI','WASTE','SUSUT','TRIAL'])
 
 with tab[0]:
     tanggal = str(tanggal)
+    df_terima  = pd.concat([df_3224.rename(columns={'3224':'Terima'}),
+            df_4205.rename(columns={'4205':'Terima'})]).groupby(['CABANG','TANGGAL','NAMA BARANG'])['Terima'].sum().reset_index()
+    df_terima = df_terima[(df_terima['TANGGAL']>=int(tanggal)-1) & (df_terima['TANGGAL']<=int(tanggal)+1)].pivot(index=['CABANG','NAMA BARANG'], columns='TANGGAL',values='Terima').reset_index()
+    df_terima.columns = df_terima.columns[:2].to_list() + [f'Terima\n{col}' for col in df_terima.columns[2:]]
+
     df_so = df[(df['JENIS']=='SO') & (df['KATEGORI'].str.upper().isin(['COM DEVIASI - RESTO', 'COM CONSUME - RESTO', 'BIAYA PACKAGING - RESTO']))]    
     df_so = df_so.groupby(['CABANG','NAMA BARANG','KATEGORI','SATUAN'])[angka_cols].sum().reset_index().replace([0], np.nan)
     df_deviasi = df_so.assign(Cabang=df_so['CABANG'].str[5:])[['Cabang','CABANG','NAMA BARANG','KATEGORI','SATUAN']+[tanggal]].rename(columns={tanggal:'SO'}).merge(df_4217.rename(columns={'CABANG':'Cabang'}), on=['Cabang','NAMA BARANG'], how='left').merge(
-    df_2205[df_2205['TANGGAL']<=int(tanggal)].groupby(['CABANG','NAMA BARANG'])[['BOM']].sum().reset_index().rename(columns={'CABANG':'Cabang'}), on=['Cabang','NAMA BARANG'], how='left').merge(df_4205[df_4205['TANGGAL']==int(tanggal)].rename(columns={'CABANG':'Cabang'}), on=['Cabang','NAMA BARANG'], how='left').drop(columns=['Cabang']).fillna(0)
+    df_2205[df_2205['TANGGAL']<=int(tanggal)].groupby(['CABANG','NAMA BARANG'])[['BOM']].sum().reset_index().rename(columns={'CABANG':'Cabang'}), on=['Cabang','NAMA BARANG'], how='left').merge(df_terima.rename(columns={'CABANG':'Cabang'}), on=['Cabang','NAMA BARANG'], how='left').drop(columns=['Cabang']).fillna(0)
     df_deviasi['DEVIASI'] = df_deviasi['SO'] - df_deviasi['SO_4217']
     df_deviasi['BOM'] = -df_deviasi['BOM']
     df_deviasi['COM'] = df_deviasi['BOM'] + df_deviasi['DEVIASI']
     df_deviasi['%'] = -(df_deviasi['DEVIASI']/df_deviasi['BOM'])
-    df_deviasi = df_deviasi.replace([np.nan, np.inf,-np.inf],0)[['CABANG','NAMA BARANG','KATEGORI','SATUAN','BOM','COM','DEVIASI','%','4205']].merge(df_so[['CABANG','NAMA BARANG']+[str(i) for i in range(int(tanggal)-6,int(tanggal)+1)]], on=['CABANG','NAMA BARANG'],how='left').fillna(0)
+    df_deviasi = df_deviasi.replace([np.nan, np.inf,-np.inf],0)[['CABANG','NAMA BARANG','KATEGORI','SATUAN','BOM','COM','DEVIASI','%']+[col for col in df_deviasi.columns if 'Terima' in col]].merge(df_so[['CABANG','NAMA BARANG']+[str(i) for i in range(int(tanggal)-6,int(tanggal)+1)]], on=['CABANG','NAMA BARANG'],how='left').fillna(0)
     df_deviasi['% '] = ((df_deviasi.iloc[:,-1] - df_deviasi.iloc[:,-2] )/ df_deviasi.iloc[:,-2]).fillna(0)
     df_deviasi['subtotal'] = df_deviasi.assign(**{'DEVIASI':df_deviasi.apply(lambda x: abs(x['DEVIASI']) if x['BOM']!=0 else 0, axis=1)}).groupby('NAMA BARANG')['DEVIASI'].transform('sum')
     df_deviasi = df_deviasi.sort_values(['subtotal','NAMA BARANG'],ascending=[False,True]).reset_index(drop=True).drop(columns=['subtotal'])
-    df_deviasi = df_deviasi[df_deviasi.drop(columns='4205').columns.to_list()+['4205']]
+    df_deviasi = df_deviasi[df_deviasi.drop(columns=[col for col in df_deviasi.columns if 'Terima' in col]).columns.to_list()+[col for col in df_deviasi.columns if 'Terima' in col]]
 
     def export_with_excel_icons_inplace(df, angka_cols, filename='output.xlsx'):
         with pd.ExcelWriter(filename, engine='xlsxwriter') as writer:
@@ -292,7 +319,7 @@ with tab[0]:
 
     gb = GridOptionsBuilder.from_dataframe(df_deviasi)
 
-    for col in ['COM','BOM','DEVIASI','%','4205']+[str(i) for i in range(int(tanggal)-6,int(tanggal)+1)]:
+    for col in ['COM','BOM','DEVIASI','%']+[col for col in df_deviasi.columns if 'Terima' in col]+[str(i) for i in range(int(tanggal)-6,int(tanggal)+1)]:
         value_formatter_jscode = JsCode("""
         function(params) {
             if (params.value == null || isNaN(params.value)) return '';
