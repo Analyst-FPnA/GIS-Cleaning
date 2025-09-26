@@ -1,4 +1,4 @@
-version = "v2.1.12"
+version = "v2.1.13"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.12
+            New Version Update Details: v2.1.13
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Insert 3224 to the 4205 column [COM-Monitoring]</li>
+            <li>Update the DATABASE_IA file</li>
         </ul>
         </div>
         """
