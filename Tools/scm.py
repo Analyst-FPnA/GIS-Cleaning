@@ -332,10 +332,11 @@ with col[1]:
                                     cabang = match.group(1) if match else ''
                     
                                     # Baca Excel: header ke-5 (index ke-4)
-                                    df = pd.read_excel(file_path, header=4).fillna('')
+                                    df = pd.read_excel(file_path, header=4)
                                     df = df.loc[:, ~df.columns.str.startswith('Unnamed')]
                                     df['Cabang'] = cabang
-                    
+                                    df = df[~df['Kode Barang'].isna()]
+                                    
                                     all_dfs.append(df)
                     
                             if all_dfs:
