@@ -1,4 +1,4 @@
-version = "v2.1.13"
+version = "v2.1.14"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.13
+            New Version Update Details: v2.1.14
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Update the DATABASE_IA file</li>
+            <li>Preventing the saving of empty rows in the module REKAP DATA 42.02 [SCM-Processing]</li>
         </ul>
         </div>
         """
