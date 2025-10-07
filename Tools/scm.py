@@ -639,7 +639,7 @@ with col[1]:
                             data = data[['Akun Penyesuaian Persediaan','STATUS','Nama Cabang','Nama Barang','SATUAN',
                                 'QTY BOM','QTY COM','QTY DEVIASI', 'QTY USAGE','QTY WASTE', 'QTY SUSUT','QTY TRIAL','QTY LOSS SURPUS',
                                 'NOMINAL BOM','NOMINAL COM','NOMINAL DEVIASI','NOMINAL USAGE', 'NOMINAL WASTE', 'NOMINAL SUSUT', 'NOMINAL TRIAL','NOMINAL LOSS SURPUS',
-                                'OMSET 1','Harga','QTY WASTE + SUSUT','% WASTE + SUSUT','NOMINAL BIANG PER GRAM','NOMINAL BUMBU','NOMINAL BOM2'
+                                'OMSET','OMSET 1','Harga','QTY WASTE + SUSUT','% WASTE + SUSUT','NOMINAL BIANG PER GRAM','NOMINAL BUMBU','NOMINAL BOM2'
                                 ]].replace([np.inf, -np.inf, np.nan], 0).merge(db_area, on='Nama Cabang', how='left').merge(db_pkg.drop_duplicates(), on='Nama Cabang',how='left').fillna('').rename(
                                     columns={'Nama Cabang':'RESTO','Nama Barang':'NAMA BAHAN','SATUAN':'Satuan'})
 
