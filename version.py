@@ -1,4 +1,4 @@
-version = "v2.1.14"
+version = "v2.1.15"
 data = "17/06/2025"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.14
+            New Version Update Details: v2.1.15
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Preventing the saving of empty rows in the module REKAP DATA 42.02 [SCM-Processing]</li>
+            <li>Added a 'Free Item' category to the 'Type' filter in the module REKAP SALES ESB & GIS [SCM-Processing]</li>
         </ul>
         </div>
         """
