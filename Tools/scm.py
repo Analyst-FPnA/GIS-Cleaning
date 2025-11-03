@@ -850,7 +850,7 @@ with col[1]:
                                     db_2205 = df_2205[['Kode #','Nama Barang','Satuan']].drop_duplicates()
                                 if file.startswith('Daily'):
                                     df = pd.read_excel(os.path.join(tmpdirname, file), header=12)
-                                    df = df[df['Type'].isin(['Ala Carte', 'Package Head','Free Item'])]
+                                    df = df[df['Type'].isin(['Ala Carte', 'Package Content','Free Item'])]
                                     df_esb.append(df)
                             df_esb = pd.concat(df_esb, ignore_index=True)
                             df_esb = df_esb[['Branch','Sales Date','Menu Name','Menu Code','Qty']].assign(**{'Menu Code': df_esb['Menu Code'].astype(str)}).merge(df_4121[['Kode Barang Grup Barang','Kode Barang','Kuantitas']].rename(columns={'Kode Barang Grup Barang':'Menu Code'}), on='Menu Code', how='left')
