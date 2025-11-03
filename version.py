@@ -1,4 +1,4 @@
-version = "v2.1.15"
+version = "v2.1.16"
 data = "17/06/2025"
 detail = """
         <div style="
