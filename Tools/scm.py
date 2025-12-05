@@ -856,7 +856,7 @@ with col[1]:
                             df_esb = df_esb[['Branch','Sales Date','Menu Name','Menu Code','Qty']].assign(**{'Menu Code': df_esb['Menu Code'].astype(str)}).merge(df_4121[['Kode Barang Grup Barang','Kode Barang','Kuantitas']].rename(columns={'Kode Barang Grup Barang':'Menu Code'}), on='Menu Code', how='left')
                             df_esb = df_esb.assign(**{'Kuantitas_ESB':df_esb['Kuantitas'] * df_esb['Qty'],
                                             'Branch':df_esb['Branch'].str.extract(r'\.(.+)')}).groupby(['Branch','Sales Date','Kode Barang'])[['Kuantitas_ESB']].sum().reset_index().merge(
-                                df_2205.assign(**{'Nama Pelanggan':df_2205['Nama Pelanggan'].str.extract(r'\(([^()]*)\)')[0].values})[df_2205['Nomor #'].str.startswith('ACR')][['Nama Pelanggan','Tanggal','Kode #','Kuantitas']].rename(
+                                df_2205.assign(**{'Nama Pelanggan':df_2205['Nama Pelanggan'].str.extract(r'\(([^()]*)\)')[0].values})[df_2205['Nomor #'].str.startswith('ACR')].groupby(['Nama Pelanggan','Tanggal','Kode #'])['Kuantitas'].sum().reset_index().rename(
                                     columns={'Nama Pelanggan':'Branch','Tanggal':'Sales Date','Kode #':'Kode Barang','Kuantitas':'Kuantitas_GIS'}),
                                 on=['Branch','Sales Date','Kode Barang'], how='outer').merge(
                                 db_2205.rename(columns={'Kode #':'Kode Barang'}), on='Kode Barang', how='left')
