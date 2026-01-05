@@ -17,7 +17,7 @@ col = st.columns([4,1])
 with col[0]:
     st.image(image)
 with col[1]:
-    with st.expander("Latest Version Update Details: v2.1.17"):
+    with st.expander("Latest Version Update Details: v2.1.18"):
 
         success_html = """
         <div style="
