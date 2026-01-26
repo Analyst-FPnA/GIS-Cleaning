@@ -1,5 +1,5 @@
-version = "v2.1.19"
-data = "17/06/2025"
+version = "v2.1.20"
+data = "26/01/2026"
 detail = """
         <div style="
             background-color: #f8d7da; 
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.19
+            New Version Update Details: v2.1.20
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Update/Add New columns on REKAP PENYESUAIAN INPUTAN IA [SCM-Processing]</li>
+            <li>Update DATABASE IA file on REKAP PENYESUAIAN INPUTAN IA [SCM-Processing]</li>
         </ul>
         </div>
         """
