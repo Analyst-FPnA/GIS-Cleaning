@@ -17,7 +17,7 @@ col = st.columns([4,1])
 with col[0]:
     st.image(image)
 with col[1]:
-    with st.expander("Latest Version Update Details: v2.1.22"):
+    with st.expander("Latest Version Update Details: v2.1.23"):
 
         success_html = """
         <div style="
@@ -29,7 +29,7 @@ with col[1]:
             border: 1px solid #c3e6cb;
         ">
         <ul style="padding-top: 10px; padding-bottom: 10px; padding-left: 12px; padding-right: 10px; margin: 0;">
-            <li>Update on REKAP PENYESUAIAN INPUTAN IA [SCM-Processing]</li>
+            <li>Convert values to negative for adjustment type "Pengurangan" on 41.01 [GIS-Processing]</li>
         </ul>
         </div>
         """
