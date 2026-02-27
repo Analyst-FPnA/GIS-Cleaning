@@ -481,6 +481,8 @@ with col[1]:
                                     
                                     df_4101a = df_4101a[df_4101a['Nama Cabang'] != ""]
                                     
+                                    df_4101a.loc[df_4101a['Tipe Penyesuaian']=='Pengurangan', ['Kuantitas','Total Biaya']] = -df_4101a.loc[df_4101a['Tipe Penyesuaian']=='Pengurangan',['Kuantitas','Total Biaya']] 
+
                                     df_4101a['Tanggal'] = pd.to_datetime(df_4101a['Tanggal'], format='%d/%m/%Y %H:%M:%S')
                                     
                                     df_4101a['Tanggal'] = df_4101a['Tanggal'].dt.strftime('%d/%m/%Y')
@@ -1041,5 +1043,6 @@ with col[1]:
                     traceback.print_exc()
         else:
             st.write(' ')
+
 
 
