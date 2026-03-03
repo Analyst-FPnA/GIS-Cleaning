@@ -93,7 +93,7 @@ col = st.columns([2,1])
 df_sj = []
 with col[0]:
     with st.container(border=True):
-        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP SALES ESB & GIS','PENYESUAIAN IA','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
+        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP SALES ESB & GIS','PENYESUAIAN IA','REPORT COM RESTO','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
         uploaded_file = st.file_uploader("Pilih File", type=["zip",'xlsx'])
     
         if selected_option == 'REKAP MENTAH':
@@ -134,6 +134,9 @@ with col[0]:
                 all_date = [f"{i:02}" for i in range(all_date[0], all_date[1] + 1)]
         if selected_option == 'REKAP SALES ESB & GIS':
             st.markdown("<span style='font-size:12px; font-weight:bold;'>File format <em>zip</em></span>",unsafe_allow_html=True)
+        if selected_option == 'REPORT COM RESTO':
+            st.markdown("<span style='font-size:12px; font-weight:bold;'>File format <em>xlsx</em></span>",unsafe_allow_html=True)
+            
         if st.button("Process"):
             if uploaded_file:
                 st.session_state.selected_option = selected_option
@@ -884,7 +887,86 @@ with col[1]:
                                 file_name=f'REKAP SALES ESB & GIS_{get_current_time_gmt7()}.xlsx',
                                 mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                             )
+                                
+                    if selected_option == 'REPORT COM RESTO':
+                            match = re.search(r"(\d+).*_(\w+)\s*(\d{4})", uploaded_file.name)
+                            if match:
+                                month_num = match.group(1).zfill(2)
+                                month_name_full = match.group(2)
+                                year_full = match.group(3)
+                                month_short = month_name_full[:3].capitalize()
+                                year_short = year_full[-2:]
+                                month_label = f"{month_short} {year_short}"  # contoh: "Sep 25"
+                                bulan_tanggal = dt.date(int(year_full), int(match.group(1)), 1)
+                            else:
+                                st.error("❌ Format nama file tidak sesuai (contoh: 9. Rekap Mentah_September 2025.xlsx)")
+                                st.stop()
 
+                            try:
+                                df_rawrekap = pd.read_excel(uploaded_file)
+                            except Exception as e:
+                                st.error(f"Gagal membaca file: {e}")
+                                st.stop()
+                
+                            cols = [
+                                'QTY BOM','QTY COM','QTY DEVIASI','QTY USAGE','QTY WASTE','QTY SUSUT','QTY TRIAL',
+                                'QTY LOSS SURPLUS','NOMINAL BOM','NOMINAL COM','NOMINAL DEVIASI','NOMINAL USAGE',
+                                'NOMINAL WASTE','NOMINAL SUSUT','NOMINAL TRIAL','NOMINAL LOSS/SURPLUS','OMSET',
+                                'OMSET 1','HARGA','QTY WASTE + SUSUT','% WASTE + SUSUT','%TOLERANSI',
+                                'NOMINAL BIANG PER GRAM','NOMINAL BUMBU','NOMINAL BOM2'
+                            ]
+                
+                            if '%TOLERANSI' in df_rawrekap.columns:
+                                s = df_rawrekap['%TOLERANSI'].astype(str).str.strip()
+                                s = s.str.replace('Belum Ada Toleransi', '0', regex=False)
+                                s = s.str.replace('Belum ada toleransi', '0', regex=False)
+                                s = s.str.replace('BELUM ADA TOLERANSI', '0', regex=False)
+                                s = s.str.replace('%', '', regex=False)
+                                s = s.replace({'': '0', 'nan': '0'})
+                                df_rawrekap['%TOLERANSI'] = pd.to_numeric(s, errors='coerce').fillna(0.0)
+                
+                            df_pv1 = df_rawrekap.copy()
+                            df_pv1["BULAN"] = month_label
+                            group_cols1 = ['Akun Penyesuaian Persediaan', 'STATUS', 'RESTO', 'BULAN']
+                            agg_cols1 = {c: 'sum' for c in cols if c in df_pv1.columns}
+                
+                            if group_cols1 and agg_cols1:
+                                df_pv1 = df_pv1.groupby(group_cols1, as_index=False).agg(agg_cols1)
+                                if 'NOMINAL BOM2' in df_pv1.columns:
+                                    df_pv1 = df_pv1.rename(columns={'NOMINAL BOM2': 'NOMINAL COM RECIPE'})
+                            else:
+                                st.warning("⚠️ Tidak ada kolom yang bisa diolah untuk Summary by Resto")
+                
+                            df_pv2 = df_rawrekap.copy()
+                            df_pv2["BULAN"] = month_label
+                            group_cols2 = ['Akun Penyesuaian Persediaan','STATUS','NAMA BAHAN','NAMA BAHAN NEW','Satuan','BULAN']
+                            agg_cols2 = {c: 'sum' for c in cols if c in df_pv2.columns}
+                
+                            if group_cols2 and agg_cols2:
+                                group_cols2_existing = [g for g in group_cols2 if g in df_pv2.columns]
+                                df_pv2 = df_pv2.groupby(group_cols2_existing, as_index=False).agg(agg_cols2)
+                                if 'NOMINAL BOM2' in df_pv2.columns:
+                                    df_pv2 = df_pv2.rename(columns={'NOMINAL BOM2': 'NOMINAL COM RECIPE'})
+                            else:
+                                st.warning("⚠️ Tidak ada kolom yang bisa diolah untuk Summary by Material")
+                
+                            buffer = BytesIO()
+                            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+                                resto_filename = f"{month_num}. Summary Resto {month_label}.csv"
+                                material_filename = f"{month_num}. Summary Material {month_label}.csv"
+                
+                                zipf.writestr(resto_filename, df_pv1.to_csv(index=False))
+                                zipf.writestr(material_filename, df_pv2.to_csv(index=False))
+                
+                            buffer.seek(0)
+                            st.success('Success',icon='✅')
+                            st.download_button(
+                                label="Download",
+                                data=buffer,
+                                file_name=f'{month_num}_REPORT COM RESTO_{month_label}_{get_current_time_gmt7()}.zip',
+                                mime='application/zip'
+                            )   
+                            
             except Exception as e:
                 st.error('Failed', icon='🛑')
                 try:
