@@ -93,7 +93,7 @@ col = st.columns([2,1])
 df_sj = []
 with col[0]:
     with st.container(border=True):
-        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP SALES ESB & GIS','PENYESUAIAN IA','REPORT COM RESTO','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
+        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP PENERIMAAN BARANG','REKAP SALES ESB & GIS','PENYESUAIAN IA','REPORT COM RESTO','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
         uploaded_file = st.file_uploader("Pilih File", type=["zip",'xlsx'])
     
         if selected_option == 'REKAP MENTAH':
@@ -136,7 +136,9 @@ with col[0]:
             st.markdown("<span style='font-size:12px; font-weight:bold;'>File format <em>zip</em></span>",unsafe_allow_html=True)
         if selected_option == 'REPORT COM RESTO':
             st.markdown("<span style='font-size:12px; font-weight:bold;'>File format <em>xlsx</em></span>",unsafe_allow_html=True)
-            
+        if selected_option == 'REKAP PENERIMAAN BARANG':
+            st.markdown("<span style='font-size:12px; font-weight:bold;'>File format <em>zip</em></span>",unsafe_allow_html=True)
+        
         if st.button("Process"):
             if uploaded_file:
                 st.session_state.selected_option = selected_option
@@ -966,6 +968,46 @@ with col[1]:
                                 file_name=f'{month_num}_REPORT COM RESTO_{month_label}_{get_current_time_gmt7()}.zip',
                                 mime='application/zip'
                             )   
+
+                    if selected_option == 'REKAP PENERIMAAN BARANG':
+                        with tempfile.TemporaryDirectory() as tmpdirname:
+                            with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+                                zip_ref.extractall(tmpdirname)
+                            for file in os.listdir(tmpdirname):
+                                if file.startswith('df_3201'):
+                                    df_3201 = pd.read_excel(os.path.join(tmpdirname, file),header=4)
+                                    df_3201 = df_3201[[x for x in df_3201.columns if 'Unnamed' not in x]]
+                                    df_3201 = df_3201.ffill()
+                                    df_3201 = df_3201.groupby(['Tgl Pengiriman','Nomor #','Pemasok','Cabang PO','Kode #','Nama Barang','Satuan'])[['Kuantitas','Kts Terproses']].sum().reset_index()
+                                    df_knv = pd.read_excel("Master/KONVERSI SATUAN.xlsx")
+                                    df_knv['Kode Barang'] = df_knv['Kode Barang'].replace(200442,410275)
+                                    dfs = []
+                                    for i in [' #2', ' #3', ' #4',' #5']:
+                                        dfs.append(df_knv[['Kode Barang','Satuan','Satuan'+i,'Rasio Satuan'+i]].rename(
+                                            columns={'Satuan':'Satuan Terkecil','Satuan'+i:'Satuan','Rasio Satuan'+i:'Rasio Satuan'}))
+                                    df_sat = pd.concat(dfs).dropna(subset=['Satuan'])
+                                    df_3201 = df_3201.merge(df_sat.rename(columns={'Kode Barang':'Kode #'}),on=['Kode #','Satuan'], how='left')
+                                    df_3201['Kuantitas'] = df_3201['Rasio Satuan'].fillna(1)*df_3201['Kuantitas'] 
+                                    df_3201['Satuan Terkecil'] = df_3201['Satuan Terkecil'].fillna(df_3201['Satuan'])
+                                    df_3201 = df_3201.groupby(['Tgl Pengiriman','Nomor #','Pemasok','Cabang PO','Kode #','Nama Barang','Satuan Terkecil'])[['Kuantitas','Kts Terproses']].sum().reset_index()
+                                    df_3201['Tanggal'] = df_3201['Tgl Pengiriman'].dt.strftime('%d').astype(int)
+                                if file.startswith('REKAP'):
+                                    df_rekap = pd.read_excel(os.path.join(tmpdirname, file), sheet_name='RAW')
+                                    df_rekap = df_rekap[df_rekap['JENIS']=='BARANG MASUK']
+                                    df_rekap = df_rekap.groupby(['PIC','NAMA RESTO','NAMA BARANG'])[df_rekap.columns[-34:-3]].sum().reset_index()
+                                    df_rekap = df_rekap.melt(id_vars=['PIC','NAMA RESTO','NAMA BARANG'],var_name='Tanggal', value_name='Barang Masuk')
+                                    df_rekap['Tanggal'] = df_rekap['Tanggal'].astype(int)
+                            df_table = df_3201.merge(df_rekap.rename(columns={'NAMA RESTO':'Cabang PO','NAMA BARANG':'Nama Barang'}), on=['Cabang PO','Nama Barang','Tanggal'], how='left').sort_values(['Cabang PO','Nama Barang'])
+                            df_table = df_table.merge(df_table.groupby(['Nama Barang','Cabang PO','Tgl Pengiriman'])[['Kts Terproses']].sum().reset_index().rename(columns={'Kts Terproses':'Selisih'}), on=['Nama Barang','Cabang PO','Tgl Pengiriman'], how='left')
+                            df_table['Selisih'] = df_table['Selisih'].fillna(0) - df_table['Barang Masuk'].fillna(0)
+                            df_table[['PIC','Cabang PO','Tgl Pengiriman','Nomor #','Pemasok','Nama Barang','Satuan Terkecil','Kuantitas','Kts Terproses','Barang Masuk','Selisih']]#.to_clipboard(index=False)
+                            st.success('Success',icon='✅')
+                            st.download_button(
+                                label="Download",
+                                data=to_excel(df_table),
+                                file_name=f'REKAP PENERIMAAN BARANG_{get_current_time_gmt7()}.xlsx',
+                                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            )
                             
             except Exception as e:
                 st.error('Failed', icon='🛑')
