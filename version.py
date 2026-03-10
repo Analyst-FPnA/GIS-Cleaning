@@ -1,4 +1,4 @@
-version = "v2.1.24"
+version = "v2.1.25"
 data = "18/02/2026"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.24
+            New Version Update Details: v2.1.25
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Convert values to negative for adjustment type "Pengurangan" on 41.01 [GIS-Processing]</li>
+            <li>Add a new module REKAP PENERIMAAN BARANG [SCM-Processing]</li>
         </ul>
         </div>
         """
