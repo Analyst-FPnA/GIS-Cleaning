@@ -974,7 +974,7 @@ with col[1]:
                             with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
                                 zip_ref.extractall(tmpdirname)
                             for file in os.listdir(tmpdirname):
-                                if file.startswith('df_3201'):
+                                if file.startswith('3201'):
                                     df_3201 = pd.read_excel(os.path.join(tmpdirname, file),header=4)
                                     df_3201 = df_3201[[x for x in df_3201.columns if 'Unnamed' not in x]]
                                     df_3201 = df_3201.ffill()
