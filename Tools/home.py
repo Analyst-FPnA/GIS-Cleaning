@@ -30,7 +30,7 @@ with col[1]:
         ">
         <ul style="padding-top: 10px; padding-bottom: 10px; padding-left: 12px; padding-right: 10px; margin: 0;">
             <li>Update the DATABASE_IA file</li>
-            <li>Addition of the "Delivery Duration" column in module 42.05 [GIS-Processing]</li>
+            <li>Add column "Lama Pengiriman" in module 42.05 [GIS-Processing]</li>
         </ul>
         </div>
         """
