@@ -1,4 +1,4 @@
-version = "v2.1.25"
+version = "v2.1.26"
 data = "18/02/2026"
 detail = """
         <div style="
@@ -11,10 +11,10 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.25
+            New Version Update Details: v2.1.26
         </div>
         <ul style="padding-left: 18px; margin: 0;">
-            <li>Add a new module REKAP PENERIMAAN BARANG [SCM-Processing]</li>
+            <li>Update the DATABASE_IA file</li>
         </ul>
         </div>
         """
