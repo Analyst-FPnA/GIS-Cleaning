@@ -1,5 +1,5 @@
-version = "v2.1.26"
-data = "18/02/2026"
+version = "v2.1.27"
+data = "30/04/2026"
 detail = """
         <div style="
             background-color: #f8d7da; 
@@ -11,10 +11,11 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.26
+            New Version Update Details: v2.1.27
         </div>
         <ul style="padding-left: 18px; margin: 0;">
             <li>Update the DATABASE_IA file</li>
+            <li>Add column "Lama Pengiriman" in module 42.05 [GIS-Processing]</li>
         </ul>
         </div>
         """
