@@ -17,7 +17,7 @@ col = st.columns([4,1])
 with col[0]:
     st.image(image)
 with col[1]:
-    with st.expander("Latest Version Update Details: v2.1.26"):
+    with st.expander("Latest Version Update Details: v2.1.27"):
 
         success_html = """
         <div style="
@@ -30,6 +30,7 @@ with col[1]:
         ">
         <ul style="padding-top: 10px; padding-bottom: 10px; padding-left: 12px; padding-right: 10px; margin: 0;">
             <li>Update the DATABASE_IA file</li>
+            <li>Addition of the "Delivery Duration" column in module 42.05 [GIS-Processing]</li>
         </ul>
         </div>
         """
