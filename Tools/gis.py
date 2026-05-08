@@ -25,7 +25,7 @@ else:
 with col[0]:
     with st.container(border=True):
         
-        selected_option = st.selectbox("Pilih Modul", ['13.01','13.10','13.22','13.31','13.33','13.55','13.66','22.05','22.16','22.19','32.07','32.15','32.23','32.24','32.43','41.01','41.04','41.04.B','41.09','42.02','42.05','42.06','42.08','42.15','42.17','42.17 (Rev1)','42.18','44.06','44.08','51.01','99.01'])
+        selected_option = st.selectbox("Pilih Modul", ['13.01','13.10','13.16','13.22','13.31','13.33','13.55','13.66','22.05','22.16','22.19','32.07','32.15','32.23','32.24','32.43','41.01','41.04','41.04.B','41.09','42.02','42.05','42.06','42.08','42.15','42.17','42.17 (Rev1)','42.18','44.06','44.08','51.01','99.01'])
         uploaded_file = st.file_uploader("Pilih File", type="xlsx", accept_multiple_files=True)
 
         st.session_state.process = False
@@ -118,6 +118,34 @@ with col[1]:
                                     label="Download",
                                     data=excel_data,
                                     file_name=f'13.10_{get_current_time_gmt7()}.xlsx',
+                                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                )   
+
+                            if selected_option=='13.16':
+                                concatenated_df = []
+                                for file in uploaded_file:
+                                    df_1316 = pd.read_excel(file)
+                                    df_1316 = df_1316.iloc[3:-1,:].dropna(axis=1, how='all').ffill(axis=1).iloc[:,:-2]
+                                    df_1316.columns = ['Nama Cabang'] + df_1316.iloc[[0,2,3],:].fillna('').agg('_'.join,axis=0).values[1:].tolist()
+                                    df_1316 = df_1316.iloc[4:,:]
+                                    df_1316 = df_1316.melt(id_vars='Nama Cabang')
+                                    df_1316[['Bulan','Akun','Var']] = df_1316['variable'].str.split('_', expand=True)
+                                    df_1316 = df_1316[df_1316['Var']=='Kredit'][['Bulan','Nama Cabang','Akun','value']].rename(columns={'value':'Kredit'}).merge(
+                                        df_1316[df_1316['Var']!='Kredit'][['Bulan','Nama Cabang','Akun','value']].rename(columns={'value':'Debit'}),
+                                        on=['Bulan','Nama Cabang','Akun'], how='outer'
+                                    )
+                                    df_1316['value'] = df_1316['Kredit'] - df_1316['Debit']
+                                    df_1316 = df_1316.pivot(index=['Bulan','Nama Cabang'], columns='Akun', values='value').reset_index()
+                                    df_1316['Penjualan Bersih'] = df_1316.iloc[:,-4:].sum(axis=1)
+                                    concatenated_df.append(df_1316)
+                                    
+                                concatenated_df = pd.concat(concatenated_df, ignore_index=True) 
+                                excel_data = to_excel(concatenated_df)
+                                st.success('Success',icon='✅')
+                                st.download_button(
+                                    label="Download",
+                                    data=excel_data,
+                                    file_name=f'13.16_{get_current_time_gmt7()}.xlsx',
                                     mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                                 )   
 
