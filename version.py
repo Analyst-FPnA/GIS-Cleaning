@@ -1,4 +1,4 @@
-version = "v2.1.29"
+version = "v2.1.30"
 data = "30/04/2026"
 detail = """
         <div style="
@@ -11,7 +11,7 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.29
+            New Version Update Details: v2.1.30
         </div>
         <ul style="padding-left: 18px; margin: 0;">
             <li>Added modules 13.16 [GIS-Processing]</li>
