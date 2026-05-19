@@ -994,13 +994,13 @@ with col[1]:
                                 if file.startswith('REKAP'):
                                     df_rekap = pd.read_excel(os.path.join(tmpdirname, file), sheet_name='RAW')
                                     df_rekap = df_rekap[df_rekap['JENIS']=='BARANG MASUK']
-                                    df_rekap = df_rekap.groupby(['PIC','NAMA RESTO','NAMA BARANG'])[df_rekap.columns[-34:-3]].sum().reset_index()
-                                    df_rekap = df_rekap.melt(id_vars=['PIC','NAMA RESTO','NAMA BARANG'],var_name='Tanggal', value_name='Barang Masuk')
+                                    df_rekap = df_rekap.groupby(['PIC','NAMA RESTO','KATEGORI','NAMA BARANG'])[df_rekap.columns[-34:-3]].sum().reset_index()
+                                    df_rekap = df_rekap.melt(id_vars=['PIC','NAMA RESTO','KATEGORI','NAMA BARANG'],var_name='Tanggal', value_name='Barang Masuk')
                                     df_rekap['Tanggal'] = df_rekap['Tanggal'].astype(int)
-                            df_table = df_3201.merge(df_rekap.rename(columns={'NAMA RESTO':'Cabang PO','NAMA BARANG':'Nama Barang'}), on=['Cabang PO','Nama Barang','Tanggal'], how='left').sort_values(['Cabang PO','Nama Barang'])
+                            df_table = df_3201.merge(df_rekap.rename(columns={'NAMA RESTO':'Cabang PO','NAMA BARANG':'Nama Barang','KATEGORI':'Kategori'}), on=['Cabang PO','Nama Barang','Tanggal'], how='left').sort_values(['Cabang PO','Nama Barang'])
                             df_table = df_table.merge(df_table.groupby(['Nama Barang','Cabang PO','Tgl Pengiriman'])[['Kts Terproses']].sum().reset_index().rename(columns={'Kts Terproses':'Selisih'}), on=['Nama Barang','Cabang PO','Tgl Pengiriman'], how='left')
                             df_table['Selisih'] = df_table['Selisih'].fillna(0) - df_table['Barang Masuk'].fillna(0)
-                            df_table = df_table[['PIC','Cabang PO','Tgl Pengiriman','Nomor #','Pemasok','Nama Barang','Satuan Terkecil','Kuantitas','Kts Terproses','Barang Masuk','Selisih']]#.to_clipboard(index=False)
+                            df_table = df_table[['PIC','Cabang PO','Tgl Pengiriman','Nomor #','Pemasok','Kategori','Nama Barang','Satuan Terkecil','Kuantitas','Kts Terproses','Barang Masuk','Selisih']]#.to_clipboard(index=False)
                             st.success('Success',icon='✅')
                             st.download_button(
                                 label="Download",
