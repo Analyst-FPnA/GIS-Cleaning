@@ -875,7 +875,7 @@ with col[1]:
                                         df = pd.read_excel(os.path.join(tmpdirname, file), header=12)
                                         df = df[df['Type'].isin(['Ala Carte', 'Package Content','Free Item'])]
                                     except Exception as e:
-                                        df = pd.read_excel(os.path.join(tmpdirname, file), header=13)
+                                        df = pd.read_excel(os.path.join(tmpdirname, file), header=11)
                                         df = df[df['Type'].isin(['Ala Carte', 'Package Content','Free Item'])]
                                     df_esb.append(df)
                             df_esb = pd.concat(df_esb, ignore_index=True)
@@ -916,7 +916,7 @@ with col[1]:
                                         df = pd.read_excel(os.path.join(tmpdirname, file), header=12)
                                         df = df[df['Type'].isin(['Ala Carte', 'Package Content','Free Item'])]
                                     except Exception as e:
-                                        df = pd.read_excel(os.path.join(tmpdirname, file), header=13)
+                                        df = pd.read_excel(os.path.join(tmpdirname, file), header=11)
                                         df = df[df['Type'].isin(['Ala Carte', 'Package Content','Free Item'])]
                                     df_esb.append(df)
                             df_esb = pd.concat(df_esb, ignore_index=True)
