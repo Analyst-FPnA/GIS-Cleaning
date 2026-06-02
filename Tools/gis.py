@@ -673,17 +673,17 @@ with col[1]:
                                     df_4206     =   df_4206.drop(df_4206.columns[[0, 0]], axis=1)
                                     
                                     df_4206 = df_4206.rename(columns={
-                                        'Unnamed: 1': 'Kode Barang',
-                                        'Unnamed: 5': 'Nama Barang',
-                                        'Unnamed: 7': 'Nama Gudang',
-                                        'Unnamed: 11': 'Nomor #',
-                                        'Unnamed: 13': 'Tanggal',
-                                        'Unnamed: 15': 'Deskripsi',
-                                        'Unnamed: 18': 'Keterangan Transaksi',
-                                        'Unnamed: 20': 'Satuan',
-                                        'Unnamed: 22': 'Masuk',
-                                        'Unnamed: 24': 'Keluar',
-                                        'Unnamed: 26': 'Saldo'
+                                        'Unnamed: 2': 'Kode Barang',
+                                        'Unnamed: 6': 'Nama Barang',
+                                        'Unnamed: 8': 'Nama Gudang',
+                                        'Unnamed: 12': 'Nomor #',
+                                        'Unnamed: 14': 'Tanggal',
+                                        'Unnamed: 16': 'Deskripsi',
+                                        'Unnamed: 19': 'Keterangan Transaksi',
+                                        'Unnamed: 21': 'Satuan',
+                                        'Unnamed: 23': 'Masuk',
+                                        'Unnamed: 25': 'Keluar',
+                                        'Unnamed: 27': 'Saldo'
                                     })
                                     
                                     df_4206     =       df_4206.loc[:, ~df_4206.columns.str.startswith('Unnamed')]
