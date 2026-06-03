@@ -926,6 +926,7 @@ with col[1]:
                                 pd.read_excel("Master/KODE DAN RESTO BOM NEW.xlsx"), how='cross'
                             )
                             db_new_kode.loc[:,['Menu Code','Menu Code New']] = db_new_kode[['Menu Code','Menu Code New']].astype(str).values
+                            db_new_kode['START COVER'] = pd.to_datetime(db_new_kode['START COVER'])
                             df_esb['Sales Date'] = pd.to_datetime(df_esb['Sales Date'])
                             df_esb = df_esb.merge(db_new_kode, on=['Branch','Menu Code'], how='left')
                             df_esb.loc[df_esb['Sales Date']<df_esb['START COVER'], 'Menu Code New'] = np.nan
