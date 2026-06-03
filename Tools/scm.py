@@ -673,7 +673,6 @@ with col[1]:
                                 mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                             )
 
-
                     if selected_option == 'OCR-SJ':
                         poppler_path = resource_path("bin")
                         tesseract_path = resource_path("Tesseract-OCR/tesseract.exe")
