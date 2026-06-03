@@ -921,11 +921,15 @@ with col[1]:
                                     df_esb.append(df)
                             df_esb = pd.concat(df_esb, ignore_index=True)
                             df_esb = df_esb[['Branch','Sales Date','Menu Name','Menu Code','Qty']].assign(**{'Menu Code': df_esb['Menu Code'].astype(str)})
-                            db_new_kode = pd.read_excel("Master/KODE DAN RESTO BOM NEW.xlsx",sheet_name='RESTO')[['Branch']].merge(
+                            
+                            db_new_kode = pd.read_excel("Master/KODE DAN RESTO BOM NEW.xlsx",sheet_name='RESTO')[['Branch','START COVER']].merge(
                                 pd.read_excel("Master/KODE DAN RESTO BOM NEW.xlsx"), how='cross'
                             )
-                            db_new_kode.loc[:,['Menu Code','Menu Code New']] = db_new_kode[['Menu Code','Menu Code New']].astype(str)
+                            db_new_kode.loc[:,['Menu Code','Menu Code New']] = db_new_kode[['Menu Code','Menu Code New']].astype(str).values
+                            df_esb['Sales Date'] = pd.to_datetime(df_esb['Sales Date'])
                             df_esb = df_esb.merge(db_new_kode, on=['Branch','Menu Code'], how='left')
+                            df_esb.loc[df_esb['Sales Date']<df_esb['START COVER'], 'Menu Code New'] = np.nan
+                            
                             df_esb['Menu Code'] = df_esb['Menu Code New'].fillna(df_esb['Menu Code'])
                             df_esb = df_esb.drop(columns=['Menu Code New']).merge(df_4121[['Kode Barang Grup Barang','Kode Barang','Kuantitas']].rename(columns={'Kode Barang Grup Barang':'Menu Code'}), on='Menu Code', how='left')
                             df_esb = df_esb.assign(**{'Kuantitas_ESB':df_esb['Kuantitas'] * df_esb['Qty'],
