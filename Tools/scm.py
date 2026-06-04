@@ -657,14 +657,16 @@ with col[1]:
                             data['% WASTE + SUSUT'] = -1*data['QTY WASTE + SUSUT']/data['QTY BOM']
                             data['NOMINAL BUMBU'] = data['NOMINAL BIANG PER GRAM']*data['QTY BOM']
                             data['NOMINAL BOM2'] = data['NOMINAL BOM'] -data['NOMINAL BUMBU']
-
-                            data = data[['Akun Penyesuaian Persediaan','STATUS','Nama Cabang','Nama Barang','SATUAN',
-                                'QTY BOM','QTY COM','QTY DEVIASI', 'QTY USAGE','QTY WASTE', 'QTY SUSUT','QTY TRIAL','QTY LOSS SURPUS',
-                                'NOMINAL BOM','NOMINAL COM','NOMINAL DEVIASI','NOMINAL USAGE', 'NOMINAL WASTE', 'NOMINAL SUSUT', 'NOMINAL TRIAL','NOMINAL LOSS SURPUS',
-                                'OMSET','OMSET 1','Harga','QTY WASTE + SUSUT','% WASTE + SUSUT','NOMINAL BIANG PER GRAM','NOMINAL BUMBU','NOMINAL BOM2'
+                            data['%TOLERANSI'] = 0
+                            data['NAMA BAHAN NEW'] = data['Nama Barang']
+                            
+                            data = data[['Akun Penyesuaian Persediaan','STATUS','Nama Cabang','Nama Barang','NAMA BAHAN NEW','SATUAN',
+                                'QTY BOM','QTY COM','QTY DEVIASI', 'QTY USAGE','QTY WASTE', 'QTY SUSUT','QTY TRIAL','QTY LOSS SURPLUS',
+                                'NOMINAL BOM','NOMINAL COM','NOMINAL DEVIASI','NOMINAL USAGE', 'NOMINAL WASTE', 'NOMINAL SUSUT', 'NOMINAL TRIAL','NOMINAL LOSS/SURPLUS',
+                                'OMSET','OMSET 1','Harga','QTY WASTE + SUSUT','% WASTE + SUSUT','%TOLERANSI','NOMINAL BIANG PER GRAM','NOMINAL BUMBU','NOMINAL BOM2'
                                 ]].replace([np.inf, -np.inf, np.nan], 0).merge(db_area, on='Nama Cabang', how='left').merge(db_pkg.drop_duplicates(), on='Nama Cabang',how='left').fillna('').rename(
                                     columns={'Nama Cabang':'RESTO','Nama Barang':'NAMA BAHAN','SATUAN':'Satuan'})
-
+                            
                             st.success('Success',icon='✅')
                             st.download_button(
                                 label="Download",
