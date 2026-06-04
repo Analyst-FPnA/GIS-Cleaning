@@ -656,7 +656,7 @@ with col[1]:
                             data['QTY WASTE + SUSUT'] = data['QTY WASTE'] + data['QTY SUSUT']
                             data['% WASTE + SUSUT'] = -1*data['QTY WASTE + SUSUT']/data['QTY BOM']
                             data['NOMINAL BUMBU'] = data['NOMINAL BIANG PER GRAM']*data['QTY BOM']
-                            data['NOMINAL BOM2'] = data['NOMINAL BOM'] -data['NOMINAL BUMBU']
+                            data['NOMINAL BOM2'] = data['NOMINAL BOM'].fillna(0) - data['NOMINAL BUMBU'].fillna(0)
                             data['%TOLERANSI'] = 0
                             data['NAMA BAHAN NEW'] = data['Nama Barang']
                             
