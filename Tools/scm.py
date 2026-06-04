@@ -642,8 +642,8 @@ with col[1]:
                             data['NOMINAL SUSUT'] = data['QTY SUSUT'] * data['Harga']
                             data['NOMINAL WASTE'] = data['QTY WASTE'] * data['Harga']
                             data['NOMINAL TRIAL'] = data['QTY TRIAL'] * data['Harga']
-                            data['QTY LOSS SURPUS'] = data['QTY DEVIASI'] - data['QTY WASTE'] - data['QTY SUSUT'] - data['QTY TRIAL']
-                            data['NOMINAL LOSS SURPUS'] = data['NOMINAL DEVIASI'] - data['NOMINAL WASTE'] - data['NOMINAL SUSUT'] - data['NOMINAL TRIAL']
+                            data['QTY LOSS SURPLUS'] = data['QTY DEVIASI'] - data['QTY WASTE'] - data['QTY SUSUT'] - data['QTY TRIAL']
+                            data['NOMINAL LOSS/SURPLUS'] = data['NOMINAL DEVIASI'] - data['NOMINAL WASTE'] - data['NOMINAL SUSUT'] - data['NOMINAL TRIAL']
 
                             data['QTY COM'] = 0
                             data['NOMINAL COM'] = 0
