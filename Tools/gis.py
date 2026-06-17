@@ -528,7 +528,8 @@ with col[1]:
                                 
                             if selected_option=='41.04':
                                 concatenated_df = []
-                                for file in uploaded_file:db_4104 = pd.read_excel(file, header=3)
+                                for file in uploaded_file:
+                                    db_4104 = pd.read_excel(file, header=3)
                                     db_4104 = db_4104.loc[:,['Unnamed: 2','Unnamed: 4']]
                                     db_4104 = db_4104.dropna(subset=['Unnamed: 2'])
                                     db_4104 = pd.DataFrame({'Kode Barang':db_4104[db_4104['Unnamed: 2']=='Kode Barang']['Unnamed: 4'].values,
