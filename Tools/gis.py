@@ -879,7 +879,19 @@ with col[1]:
                                             else:
                                                 return cabang
                                     
+                                    def format_nama_cabang2(cabang):
+                                        match1 = re.match(r"\((\d+),\s*([A-Z]+)\)", cabang)
+                                        if match1:
+                                            return f"{match1.group(1)}.{cabang.split('-')[0].split('.')[-1]}.{match1.group(2)}"
+                                        else:
+                                            match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
+                                            if match2:
+                                                return f"{match2.group(1)}.{cabang.split('-')[0].split('.')[-1]}.{match2.group(2)}"
+                                            else:
+                                                return cabang
+                                    
                                     df_4217_final['Cabang'] = df_4217_final['Nama Cabang'].apply(format_nama_cabang)
+                                    df_4217_final['Cabang.2'] = df_4217_final['Nama Cabang'].apply(format_nama_cabang2)
                                     concatenated_df.append(df_4217_final.drop(columns=['Nama Cabang']))
 
                                 concatenated_df = pd.concat(concatenated_df, ignore_index=True)
