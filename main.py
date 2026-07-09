@@ -119,7 +119,7 @@ with st.sidebar:
     st.divider()
     try:
         requests.get("https://www.google.com", timeout=3)
-        url = "https://raw.githubusercontent.com/Analyst-FPnA/GIS-Cleaning/main/version.py"
+        url = "https://analyst-fpna/GIS-Cleaning/version.py"
 
         response = requests.get(url)
         file_content = response.text
