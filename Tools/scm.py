@@ -933,8 +933,8 @@ with col[1]:
                             df_esb['Sales Date'] = pd.to_datetime(df_esb['Sales Date'])
                             df_esb = df_esb.merge(db_new_kode, on=['Branch','Menu Code'], how='left')
                             df_esb.loc[df_esb['Sales Date']<df_esb['START COVER'], 'Menu Code New'] = np.nan
-                            df_esb = df_esb.merge(db_exclude_kode, left_on=['Branch','Sales Date'], right_on=['Branch','EXCLUDE_DATE'], how='left')
-                            df_esb.loc[df_esb['Sales Date']==df_esb['EXCLUDE_DATE'], 'Menu Code New'] = np.nan
+                            df_esb = df_esb.merge(db_exclude_kode, on='Branch', how='left')
+                            df_esb.loc[df_esb['Sales Date']>=df_esb['EXCLUDE_DATE'], 'Menu Code New'] = np.nan
                             
                             df_esb['Menu Code'] = df_esb['Menu Code New'].fillna(df_esb['Menu Code'])
                             df_esb = df_esb.drop(columns=['Menu Code New']).merge(df_4121[['Kode Barang Grup Barang','Kode Barang','Kuantitas']].rename(columns={'Kode Barang Grup Barang':'Menu Code'}), on='Menu Code', how='left')
