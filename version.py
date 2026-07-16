@@ -1,4 +1,4 @@
-version = "v2.1.51"
+version = "v2.1.52"
 data = "14/07/2026"
 detail = """
         <div style="
@@ -11,7 +11,7 @@ detail = """
             padding: 10px 12px;
         ">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">
-            New Version Update Details: v2.1.51
+            New Version Update Details: v2.1.52
         </div>
         <ul style="padding-left: 18px; margin: 0;">
             <li></li>
