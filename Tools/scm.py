@@ -93,7 +93,7 @@ col = st.columns([2,1])
 df_sj = []
 with col[0]:
     with st.container(border=True):
-        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP PENERIMAAN BARANG','REKAP SALES ESB & GIS','REKAP SALES ESB & GIS rev.01','PENYESUAIAN IA','REPORT COM RESTO','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
+        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP PENERIMAAN BARANG','REKAP BARANG MASUK','REKAP SALES ESB & GIS','REKAP SALES ESB & GIS rev.01','PENYESUAIAN IA','REPORT COM RESTO','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
         uploaded_file = st.file_uploader("Pilih File", type=["zip",'xlsx'])
     
         if selected_option == 'REKAP MENTAH':
@@ -1072,7 +1072,82 @@ with col[1]:
                                 file_name=f'REKAP PENERIMAAN BARANG_{get_current_time_gmt7()}.xlsx',
                                 mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                             )
+
+
+                    if selected_option == 'REKAP BARANG MASUK':
+                        with tempfile.TemporaryDirectory() as tmpdirname:
+                            with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+                                zip_ref.extractall(tmpdirname)
+
+                            df_4205 = []
+                            for file in [file for file in os.listdir(tmpdirname) if file.startswith('4205')]:
+                                df = pd.read_excel(f'{tmpdirname}/{file}', header=4)
+                                df = df[~df['Nomor #Terima'].isna()][[x for x in df.columns if 'Unnamed' not in x]]
+                                df_4205.append(df)
+                            df_3224 = []
+                            for file in [file for file in os.listdir(tmpdirname) if file.startswith('3224')]:
+                                df = pd.read_excel(f'{tmpdirname}/{file}', header=4)
+                                df = df[~df['Tanggal'].isna()][[x for x in df.columns if 'Unnamed' not in x]]
+                                df_3224.append(df)
+                            df_9901 = []
+                            for file in [file for file in os.listdir(tmpdirname) if file.startswith('9901')]:
+                                df = pd.read_excel(f'{tmpdirname}/{file}')
+                                df = df[~df['Tanggal'].isna() & (df['Nomor # Penerimaan Barang'].isna())][[x for x in df.columns if 'Unnamed' not in x]]
+                                df_9901.append(df)
+                            df_rekap = []
+                            for file in [file for file in os.listdir(tmpdirname) if file.startswith('REKAP')]:
+                                df = pd.read_excel(f'{tmpdirname}/{file}')
+                                df = df[df['JENIS']=='BARANG MASUK']
+                                df = df.groupby(['NAMA RESTO','NAMA BARANG'])[df.columns[-34:-3]].sum().reset_index()
+                                df = df.melt(id_vars=['NAMA RESTO','NAMA BARANG'],var_name='Tanggal', value_name='Barang Masuk')
+                                df['Tanggal'] = df['Tanggal'].astype(int)
+                                df_rekap.append(df)
+                                
+                            df_4205 = pd.concat(df_4205, ignore_index=True) 
+                            df_3224 = pd.concat(df_3224, ignore_index=True) 
+                            df_9901 = pd.concat(df_9901, ignore_index=True) 
                             
+                            df_rekap = pd.concat(df_rekap, ignore_index=True) 
+                            df_rekap.columns = ['Resto','Nama Item','Tanggal','Qty Masuk SO Harian']
+                            df_4205['Tanggal #Terima'] = pd.to_datetime(df_4205['Tanggal #Terima']).dt.strftime('%d').astype(int)
+                            
+                            df_4205 = df_4205.groupby(['Gudang #Terima','Tanggal #Terima','Nama Barang'])['#Qty. Terkecil'].sum().reset_index()
+                            df_4205.columns = ['Resto','Tanggal','Nama Item','Qty SJ (42.05)']
+                            def format_nama_cabang(cabang):
+                                match1 = re.match(r"\((\d+),\s*([A-Z]+)\)", cabang)
+                                if match1:
+                                    return f"{match1.group(1)}.{match1.group(2)}"
+                                else:
+                                    match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
+                                    if match2:
+                                        return f"{match2.group(1)}.{match2.group(2)}"
+                                    else:
+                                        return cabang
+                            df_4205['Resto'] = df_4205['Resto'].apply(lambda x: format_nama_cabang(x))
+                            
+                            df_3224 = df_3224[~df_3224['Nomor # RI'].isna()].copy()
+                            df_3224['Tanggal'] = pd.to_datetime(df_3224['Tanggal']).dt.strftime('%d').astype(int)
+                            df_3224 = df_3224.groupby(['Nama Cabang Penerimaan Barang','Tanggal','Nama Barang'])['Kts (Unit#1)'].sum().reset_index()
+                            df_3224.columns = ['Resto','Tanggal','Nama Item','Qty RI (32.24)']
+                            
+                            df_9901['Tanggal'] = pd.to_datetime(df_9901['Tanggal']).dt.strftime('%d').astype(int)
+                            df_9901 = df_9901.groupby(['Nama Cabang','Tanggal','Nama Barang'])['#Prime.Qty'].sum().reset_index()
+                            df_9901.columns = ['Resto','Tanggal','Nama Item','Qty Pembelian (99.01)']
+
+                            df_table = df_rekap.merge(
+                                df_4205, on=['Resto','Tanggal','Nama Item'], how='left').merge(
+                                    df_3224, on=['Resto','Tanggal','Nama Item'], how='left').merge(
+                                        df_9901, on=['Resto','Tanggal','Nama Item'], how='left'
+                                    )
+                            df_table['Selisih Qty'] = df_table['Qty Masuk SO Harian'] - df_table.iloc[:,-3:].fillna(0).sum(axis=1)
+                            st.success('Success',icon='✅')
+                            st.download_button(
+                                label="Download",
+                                data=to_excel(df_table),
+                                file_name=f'REKAP BARANG MASUK_{get_current_time_gmt7()}.xlsx',
+                                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            )
+            
             except Exception as e:
                 st.error('Failed', icon='🛑')
                 try:
