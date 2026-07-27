@@ -1098,8 +1098,8 @@ with col[1]:
                             for file in [file for file in os.listdir(tmpdirname) if file.startswith('REKAP')]:
                                 df = pd.read_excel(f'{tmpdirname}/{file}')
                                 df = df[df['JENIS']=='BARANG MASUK']
-                                df = df.groupby(['NAMA RESTO','NAMA BARANG'])[df.columns[-34:-3]].sum().reset_index()
-                                df = df.melt(id_vars=['NAMA RESTO','NAMA BARANG'],var_name='Tanggal', value_name='Barang Masuk')
+                                df = df.groupby(['NAMA RESTO','NAMA BARANG','SATUAN'])[df.columns[-34:-3]].sum().reset_index()
+                                df = df.melt(id_vars=['NAMA RESTO','NAMA BARANG','SATUAN'],var_name='Tanggal', value_name='Barang Masuk')
                                 df['Tanggal'] = df['Tanggal'].astype(int)
                                 df_rekap.append(df)
                                 
@@ -1108,7 +1108,7 @@ with col[1]:
                             df_9901 = pd.concat(df_9901, ignore_index=True) 
                             
                             df_rekap = pd.concat(df_rekap, ignore_index=True) 
-                            df_rekap.columns = ['Resto','Nama Item','Tanggal','Qty Masuk SO Harian']
+                            df_rekap.columns = ['Resto','Nama Item','UoM','Tanggal','Qty Masuk SO Harian']
                             df_4205['Tanggal #Terima'] = pd.to_datetime(df_4205['Tanggal #Terima']).dt.strftime('%d').astype(int)
                             
                             df_4205 = df_4205.groupby(['Gudang #Terima','Tanggal #Terima','Nama Barang'])['#Qty. Terkecil'].sum().reset_index()
