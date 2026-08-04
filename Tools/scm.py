@@ -620,7 +620,7 @@ with col[1]:
                                     db_pkg = pd.read_excel(dir_db+file).rename(columns={'RESTO':'Nama Cabang'})
                                     
                             data = pd.concat([df_4104b,df_4104d],ignore_index=True).rename(columns={'Nominal Kts Keluar':'NOMINAL BOM','Kts Keluar':'QTY BOM'}).groupby(['Nama Gudang','Nama Barang'])[['QTY BOM','NOMINAL BOM']].sum().reset_index()
-                            data['Nama Cabang'] = data['Nama Gudang'].str[:5] + data['Nama Gudang'].str.extract(r'\(([^()]*)\)')[0].values
+                            data['Nama Cabang'] = data['Nama Gudang'].str.replace('B.','').str[:5] + data['Nama Gudang'].str.extract(r'\(([^()]*)\)')[0].values
                             data = data.merge(df_4101.rename(columns={'Kuantitas':'QTY DEVIASI','Total Biaya':'NOMINAL DEVIASI'}), on=['Nama Cabang','Nama Barang'], how='outer')
                             data = data.merge(df_3224,on=['Nama Cabang','Nama Barang'], how='outer').merge(df_wst[df_wst['KETERANGAN']=='QTY WASTE'].rename(columns={'QTY':'QTY WASTE'}).drop(columns=['KETERANGAN']),on=['Nama Cabang','Nama Barang'], how='outer').merge(
                                 df_wst[df_wst['KETERANGAN']=='QTY SUSUT'].rename(columns={'QTY':'QTY SUSUT'}).drop(columns=['KETERANGAN']),on=['Nama Cabang','Nama Barang'], how='outer').merge(
