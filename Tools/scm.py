@@ -581,7 +581,7 @@ with col[1]:
                                     df_4101 = df_4101[df_4101['Akun Penyesuaian Persediaan'].isin(['COM Deviasi - Resto','COM Consume - Resto', 'Biaya Packaging - RESTO'])].reset_index(drop=True)
                                     df_4101.loc[df_4101[df_4101['Tipe Penyesuaian']=='Pengurangan'].index,['Kuantitas','Total Biaya']] = - df_4101[df_4101['Tipe Penyesuaian']=='Pengurangan'][['Kuantitas','Total Biaya']]
                                     df_4101 = df_4101.groupby(['Nama Cabang','Nama Barang'])[['Kuantitas','Total Biaya']].sum().reset_index()
-                                    df_4101['Cabang'] = df_4101['Nama Cabang'].str.extract(r'\.(.+)')
+                                    df_4101['Cabang'] = df_4101['Nama Cabang'].str.replace('B.','').str.extract(r'\.(.+)')
                                 if file.startswith('4104') and ('ACR' in file):
                                     df_4104b = pd.read_excel(dir_raw+file,header=4)
                                     df_4104b = df_4104b.dropna(how='all',axis=1)
