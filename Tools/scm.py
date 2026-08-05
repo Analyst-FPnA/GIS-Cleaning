@@ -225,17 +225,28 @@ with col[1]:
 
                                     #df_4217_final.insert(0, 'No. Urut', range(1, len(df_4217_final) + 1))
 
+                                    # def format_nama_cabang(cabang):
+                                    #     match1 = re.match(r"\((\d+),\s*([A-Z]+)\)", cabang)
+                                    #     if match1:
+                                    #         return f"{match1.group(1)}.{match1.group(2)}"
+                                    #     else:
+                                    #         match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
+                                    #         if match2:
+                                    #             return f"{match2.group(1)}.{match2.group(2)}"
+                                    #         else:
+                                    #             return cabang
                                     def format_nama_cabang(cabang):
                                         match1 = re.match(r"\((\d+),\s*([A-Z]+)\)", cabang)
                                         if match1:
                                             return f"{match1.group(1)}.{match1.group(2)}"
-                                        else:
-                                            match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
-                                            if match2:
-                                                return f"{match2.group(1)}.{match2.group(2)}"
-                                            else:
-                                                return cabang
-
+                                        match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
+                                        if match2:
+                                            return f"{match2.group(1)}.{match2.group(2)}"
+                                        match3 = re.match(r"^([A-Z]\.\d+)\.[^(]+\s*\((.*?)\)$", cabang)
+                                        if match3:
+                                            return f"{match3.group(1)}.{match3.group(2)}"
+                                        return cabang
+                                        
                                     df_4217_final['Cabang'] = df_4217_final['Nama Cabang'].apply(format_nama_cabang)
 
                                     #df_4217_final=df_4217_final.loc[:,["No. Urut", "Kategori Barang","Kode Barang","Nama Barang","Satuan","Saldo Akhir", "Cabang"]]
@@ -581,7 +592,7 @@ with col[1]:
                                     df_4101 = df_4101[df_4101['Akun Penyesuaian Persediaan'].isin(['COM Deviasi - Resto','COM Consume - Resto', 'Biaya Packaging - RESTO'])].reset_index(drop=True)
                                     df_4101.loc[df_4101[df_4101['Tipe Penyesuaian']=='Pengurangan'].index,['Kuantitas','Total Biaya']] = - df_4101[df_4101['Tipe Penyesuaian']=='Pengurangan'][['Kuantitas','Total Biaya']]
                                     df_4101 = df_4101.groupby(['Nama Cabang','Nama Barang'])[['Kuantitas','Total Biaya']].sum().reset_index()
-                                    df_4101['Cabang'] = df_4101['Nama Cabang'].str.replace('B.','').str.extract(r'\.(.+)')
+                                    df_4101['Cabang'] = df_4101['Nama Cabang'].str.replace('B.','').str.extract(r'\.([^.]+)$')
                                 if file.startswith('4104') and ('ACR' in file):
                                     df_4104b = pd.read_excel(dir_raw+file,header=4)
                                     df_4104b = df_4104b.dropna(how='all',axis=1)
@@ -620,7 +631,7 @@ with col[1]:
                                     db_pkg = pd.read_excel(dir_db+file).rename(columns={'RESTO':'Nama Cabang'})
                                     
                             data = pd.concat([df_4104b,df_4104d],ignore_index=True).rename(columns={'Nominal Kts Keluar':'NOMINAL BOM','Kts Keluar':'QTY BOM'}).groupby(['Nama Gudang','Nama Barang'])[['QTY BOM','NOMINAL BOM']].sum().reset_index()
-                            data['Nama Cabang'] = data['Nama Gudang'].str.replace('B.','').str[:5] + data['Nama Gudang'].str.extract(r'\(([^()]*)\)')[0].values
+                            data['Nama Cabang'] = data['Nama Gudang'].str.extract(r'^((?:[A-Z]\.)?\d+\.)') + data['Nama Gudang'].str.extract(r'\(([^()]*)\)')[0].values
                             data = data.merge(df_4101.rename(columns={'Kuantitas':'QTY DEVIASI','Total Biaya':'NOMINAL DEVIASI'}), on=['Nama Cabang','Nama Barang'], how='outer')
                             data = data.merge(df_3224,on=['Nama Cabang','Nama Barang'], how='outer').merge(df_wst[df_wst['KETERANGAN']=='QTY WASTE'].rename(columns={'QTY':'QTY WASTE'}).drop(columns=['KETERANGAN']),on=['Nama Cabang','Nama Barang'], how='outer').merge(
                                 df_wst[df_wst['KETERANGAN']=='QTY SUSUT'].rename(columns={'QTY':'QTY SUSUT'}).drop(columns=['KETERANGAN']),on=['Nama Cabang','Nama Barang'], how='outer').merge(
@@ -882,7 +893,7 @@ with col[1]:
                             df_esb = pd.concat(df_esb, ignore_index=True)
                             df_esb = df_esb[['Branch','Sales Date','Menu Name','Menu Code','Qty']].assign(**{'Menu Code': df_esb['Menu Code'].astype(str)}).merge(df_4121[['Kode Barang Grup Barang','Kode Barang','Kuantitas']].rename(columns={'Kode Barang Grup Barang':'Menu Code'}), on='Menu Code', how='left')
                             df_esb = df_esb.assign(**{'Kuantitas_ESB':df_esb['Kuantitas'] * df_esb['Qty'],
-                                            'Branch':df_esb['Branch'].str.extract(r'\.(.+)')}).groupby(['Branch','Sales Date','Kode Barang'])[['Kuantitas_ESB']].sum().reset_index().merge(
+                                            'Branch':df_esb['Branch'].str.extract(r'\.([^.]+)$')}).groupby(['Branch','Sales Date','Kode Barang'])[['Kuantitas_ESB']].sum().reset_index().merge(
                                 df_2205.assign(**{'Nama Pelanggan':df_2205['Nama Pelanggan'].str.extract(r'\(([^()]*)\)')[0].values})[df_2205['Nomor #'].str.startswith('ACR')].groupby(['Nama Pelanggan','Tanggal','Kode #'])['Kuantitas'].sum().reset_index().rename(
                                     columns={'Nama Pelanggan':'Branch','Tanggal':'Sales Date','Kode #':'Kode Barang','Kuantitas':'Kuantitas_GIS'}),
                                 on=['Branch','Sales Date','Kode Barang'], how='outer').merge(
@@ -939,7 +950,7 @@ with col[1]:
                             df_esb['Menu Code'] = df_esb['Menu Code New'].fillna(df_esb['Menu Code'])
                             df_esb = df_esb.drop(columns=['Menu Code New']).merge(df_4121[['Kode Barang Grup Barang','Kode Barang','Kuantitas']].rename(columns={'Kode Barang Grup Barang':'Menu Code'}), on='Menu Code', how='left')
                             df_esb = df_esb.assign(**{'Kuantitas_ESB':df_esb['Kuantitas'] * df_esb['Qty'],
-                                            'Branch':df_esb['Branch'].str.extract(r'\.(.+)')}).groupby(['Branch','Sales Date','Kode Barang'])[['Kuantitas_ESB']].sum().reset_index().merge(
+                                            'Branch':df_esb['Branch'].str.extract(r'\.([^.]+)$')}).groupby(['Branch','Sales Date','Kode Barang'])[['Kuantitas_ESB']].sum().reset_index().merge(
                                 df_2205.assign(**{'Nama Pelanggan':df_2205['Nama Pelanggan'].str.extract(r'\(([^()]*)\)')[0].values})[df_2205['Nomor #'].str.startswith('ACR')].groupby(['Nama Pelanggan','Tanggal','Kode #'])['Kuantitas'].sum().reset_index().rename(
                                     columns={'Nama Pelanggan':'Branch','Tanggal':'Sales Date','Kode #':'Kode Barang','Kuantitas':'Kuantitas_GIS'}),
                                 on=['Branch','Sales Date','Kode Barang'], how='outer').merge(
