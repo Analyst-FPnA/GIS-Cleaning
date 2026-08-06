@@ -19,8 +19,32 @@ st.markdown("""
         </style>
         """, unsafe_allow_html=True)
 
-with open("version.py", "r", encoding="utf-8") as f:
-    file_content = f.read()
+try:
+    with open("version.py", "r", encoding="utf-8") as f:
+        file_content = f.read()
+except Exception as e:
+    zip_url = f"https://github.com/Analyst-FPNA/GIS-Cleaning/archive/refs/heads/main.zip"
+
+    response = requests.get(zip_url)
+    if response.status_code != 200:
+        raise Exception(f"Gagal mengunduh ZIP: {response.status_code}")
+    with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+        root_folder = z.namelist()[0].split('/')[0]  # contoh: 'repo-main'
+
+        for member in z.namelist():
+            if member.endswith("/"):
+                continue  # Lewati folder
+
+            # Hapus nama folder root dari path
+            relative_path = os.path.relpath(member, root_folder)
+
+            # Buat folder jika belum ada
+            if os.path.dirname(relative_path):
+                os.makedirs(os.path.dirname(relative_path), exist_ok=True)
+
+            # Simpan file ke direktori kerja
+            with open(relative_path, "wb") as f:
+                f.write(z.read(member))
 
 namespace = {}
 exec(file_content, namespace)
@@ -119,7 +143,7 @@ with st.sidebar:
     st.divider()
     try:
         requests.get("https://www.google.com", timeout=3)
-        url = "https://analyst-fpna/GIS-Cleaning/version.py"
+        url = "https://analyst-fpna.github.io/GIS-Cleaning/version.py"
 
         response = requests.get(url)
         file_content = response.text
