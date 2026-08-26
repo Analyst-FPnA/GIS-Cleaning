@@ -236,9 +236,15 @@ with col[1]:
                                     #         else:
                                     #             return cabang
                                     def format_nama_cabang(cabang):
-                                        match1 = re.match(r"\((\d+),\s*([A-Z]+)\)", cabang)
+                                        match1 = re.match(r"^(\d+)\.\d+-G\.([A-Z0-9]+)\..*\(.*\)\s*$", cabang)
                                         if match1:
                                             return f"{match1.group(1)}.{match1.group(2)}"
+                                        match4 = re.match(r"^(\d+)\.\d+-G\.([A-Z]+)\.[A-Z]+\s*\(.*?\)$", cabang)
+                                        if match4 and cabang.startswith(('5',"2909")):
+                                            return f"{match4.group(1)}.{match4.group(2)}"
+                                        match5 = re.match(r"^(\d+)\.\d+-G\..*\(([^()]*)\)\s*$", cabang)
+                                        if match5:
+                                            return f"{match5.group(1)}.{match5.group(2)}"
                                         match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
                                         if match2:
                                             return f"{match2.group(1)}.{match2.group(2)}"
@@ -1125,15 +1131,22 @@ with col[1]:
                             df_4205 = df_4205.groupby(['Gudang #Terima','Tanggal #Terima','Nama Barang'])['#Qty. Terkecil'].sum().reset_index()
                             df_4205.columns = ['Resto','Tanggal','Nama Item','Qty SJ (42.05)']
                             def format_nama_cabang(cabang):
-                                match1 = re.match(r"\((\d+),\s*([A-Z]+)\)", cabang)
+                                match1 = re.match(r"^(\d+)\.\d+-G\.([A-Z0-9]+)\..*\(.*\)\s*$", cabang)
                                 if match1:
                                     return f"{match1.group(1)}.{match1.group(2)}"
-                                else:
-                                    match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
-                                    if match2:
-                                        return f"{match2.group(1)}.{match2.group(2)}"
-                                    else:
-                                        return cabang
+                                match4 = re.match(r"^(\d+)\.\d+-G\.([A-Z]+)\.[A-Z]+\s*\(.*?\)$", cabang)
+                                if match4 and cabang.startswith(('5',"2909")):
+                                    return f"{match4.group(1)}.{match4.group(2)}"
+                                match5 = re.match(r"^(\d+)\.\d+-G\..*\(([^()]*)\)\s*$", cabang)
+                                if match5:
+                                    return f"{match5.group(1)}.{match5.group(2)}"
+                                match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
+                                if match2:
+                                    return f"{match2.group(1)}.{match2.group(2)}"
+                                match3 = re.match(r"^([A-Z]\.\d+)\.[^(]+\s*\((.*?)\)$", cabang)
+                                if match3:
+                                    return f"{match3.group(1)}.{match3.group(2)}"
+                                return cabang
                             df_4205['Resto'] = df_4205['Resto'].apply(lambda x: format_nama_cabang(x))
                             
                             df_3224 = df_3224[~df_3224['Nomor # RI'].isna()].copy()
