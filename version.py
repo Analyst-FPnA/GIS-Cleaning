@@ -1,5 +1,5 @@
-version = "v2.1.62"
-data = "24/09/2026"
+version = "v2.1.63"
+data = "29/09/2026"
 detail = """
         <div style="
             background-color: #f8d7da; 
