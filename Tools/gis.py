@@ -459,7 +459,7 @@ with col[1]:
                                 concatenated_df = []
                                 for file in uploaded_file:
                                     df_3224 = pd.read_excel(file, skiprows=range(0, 4))
-                                    df_3224 = df_3224.loc[:,['Tanggal','Nomor # PO','Nomor # RI','Pemasok','Kode #','Nama Barang','Kts Terima','Satuan','@Harga','Total Harga','#Kts Ditagih','Nama Gudang','Nama Cabang Penerimaan Barang','Status Penerimaan Barang','Pembuat Data','Tgl/Jam Pembuatan']]
+                                    df_3224 = df_3224.loc[:,[x for x in df_3224.columns if 'Unnamed' not in x]]
                                     df_3224 = df_3224[df_3224['Nomor # PO' ] != ""]
                                     concatenated_df.append(df_3224)
                                     
