@@ -260,6 +260,7 @@ with col[1]:
                                 else:
                                     df_so = pd.read_excel(tmpdirname+'/'+file)
                                     df_so['CABANG'] = df_so['CABANG'].str.upper().str[:6]
+                                    df_so['Biaya Satuan'] = df_so['Biaya Satuan'].astype(float)
 
                             df_4217 = pd.concat(concatenated_df)
                             df_4217['CABANG'] = df_4217['Cabang'].str[-6:]
@@ -281,7 +282,7 @@ with col[1]:
                                         df_ia = df_4217[(df_4217['Kategori Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER'])) 
                                                         & ~(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Consume']['FILTER']))
                                                         & (df_4217['Cabang']==cab)] 
-                                        df_ia[['Biaya Satuan','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
                                         df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
                                         if not df_ia.empty:
                                             df_ia.to_excel(f'{folder}/{kat}_{cab}_{nama_file}.xlsx', index=False)
@@ -289,28 +290,29 @@ with col[1]:
                                         df_ia = df_4217[(df_4217['Kategori Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER'])) 
                                                         & ~(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Consume']['FILTER']))
                                                         & (df_4217['Cabang']==cab) & ~(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Packaging Usage']['FILTER']))] 
-                                        df_ia[['Biaya Satuan','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
                                         df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
                                         if not df_ia.empty:
                                             df_ia.to_excel(f'{folder}/{kat} Deviasi_{cab}_{nama_file}.xlsx', index=False)
                                         df_ia = df_4217[(df_4217['Kategori Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER'])) 
                                                         & ~(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Consume']['FILTER']))
                                                         & (df_4217['Cabang']==cab) & (df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Packaging Usage']['FILTER']))] 
-                                        df_ia[['Biaya Satuan','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
                                         df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
                                         if not df_ia.empty:
                                             df_ia.to_excel(f'{folder}/{kat} Usage_{cab}_{nama_file}.xlsx', index=False)
                                     if kat in ['Consume']:
                                         df_ia = df_4217[(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER']))
                                                         & (df_4217['Cabang']==cab)] 
-                                        df_ia[['Biaya Satuan','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
                                         df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
                                         if not df_ia.empty:
                                             df_ia.to_excel(f'{folder}/{kat}_{cab}_{nama_file}.xlsx', index=False)
                                     else:         
                                         df_ia = df_4217[(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER']))
                                                         & (df_4217['Cabang']==cab) & (df_4217['Kategori Barang'].isin(non_com))] 
-                                        df_ia[['Biaya Satuan','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
                                         df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
                                         if not df_ia.empty:
                                             df_ia.to_excel(f'{folder}/{kat}_{cab}_{nama_file}.xlsx', index=False)
