@@ -93,12 +93,12 @@ col = st.columns([2,1])
 df_sj = []
 with col[0]:
     with st.container(border=True):
-        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP PENERIMAAN BARANG','REKAP BARANG MASUK','REKAP SALES ESB & GIS','REKAP SALES ESB & GIS rev.01','PENYESUAIAN IA','REPORT COM RESTO','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
+        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP PENYESUAIAN INPUTAN IA rev.01','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP PENERIMAAN BARANG','REKAP BARANG MASUK','REKAP SALES ESB & GIS','REKAP SALES ESB & GIS rev.01','PENYESUAIAN IA','REPORT COM RESTO','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
         uploaded_file = st.file_uploader("Pilih File", type=["zip",'xlsx'])
     
         if selected_option == 'REKAP MENTAH':
             st.markdown("<span style='font-size:12px; font-weight:bold;'>File format <em>zip</em></span>",unsafe_allow_html=True)
-        if selected_option == 'REKAP PENYESUAIAN INPUTAN IA':
+        if selected_option in ['REKAP PENYESUAIAN INPUTAN IA','REKAP PENYESUAIAN INPUTAN IA rev.01']:
             st.markdown("<span style='font-size:12px; font-weight:bold;'>File format <em>zip</em></span>",unsafe_allow_html=True)
             st.info("""
         **File** (*zip*):
@@ -333,6 +333,124 @@ with col[1]:
                                 label="Download Zip",
                                 data=zip_buffer,
                                 file_name=f"REKAP PENYESUAIAN STOK (IA)_{nama_file}_{get_current_time_gmt7()}.zip",
+                                mime="application/zip"
+                            )
+                    if selected_option == 'REKAP PENYESUAIAN INPUTAN IA rev.01':
+                        nama_file = uploaded_file.name.replace('.zip','')
+                        with tempfile.TemporaryDirectory() as tmpdirname:
+                            # Ekstrak file ZIP ke direktori sementara
+                            with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+                                zip_ref.extractall(tmpdirname)
+                            non_com = ['SUPPLIES [OTHERS]','00.COST','20.ASSET.ASSET','21.COST.ASSET']
+                            concatenated_df = []
+                        
+                            for file in os.listdir(tmpdirname):
+                                if file.startswith('4217'):
+                                    df_4217     =   pd.read_excel(tmpdirname+'/'+file, header=4).fillna('')
+                                    df_4217 = df_4217.drop(columns=[x for x in df_4217.reset_index().T[(df_4217.reset_index().T[1]=='')].index if 'Unnamed' in x])
+                                    df_4217.columns = df_4217.T.reset_index()['index'].apply(lambda x: np.nan if 'Unnamed' in x else x).ffill().values
+                                    
+                                    df_4217_final = pd.melt(df_4217, id_vars=['Kode Barang', 'Nama Barang','Kategori Barang','Satuan #'],
+                                                        value_vars=df_4217.columns[4:].values,
+                                                        var_name='Nama Cabang', value_name='Saldo Akhir').reset_index(drop=True)
+                                    df_4217_final['Kode Barang'] = df_4217_final['Kode Barang'].astype('int')
+                                    df_4217_final['Saldo Akhir'] = df_4217_final['Saldo Akhir'].astype('float')
+                                    def format_nama_cabang(cabang):
+                                        match1 = re.match(r"^(\d+)\.\d+-G\.([A-Z0-9]+)\..*\(.*\)\s*$", cabang)
+                                        if match1:
+                                            return f"{match1.group(1)}.{match1.group(2)}"
+                                        match4 = re.match(r"^(\d+)\.\d+-G\.([A-Z]+)\.[A-Z]+\s*\(.*?\)$", cabang)
+                                        if match4 and cabang.startswith(('5',"2909")):
+                                            return f"{match4.group(1)}.{match4.group(2)}"
+                                        match5 = re.match(r"^(\d+)\.\d+-G\..*\(([^()]*)\)\s*$", cabang)
+                                        if match5:
+                                            return f"{match5.group(1)}.{match5.group(2)}"
+                                        match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
+                                        if match2:
+                                            return f"{match2.group(1)}.{match2.group(2)}"
+                                        match3 = re.match(r"^([A-Z]\.\d+)\.[^(]+\s*\((.*?)\)$", cabang)
+                                        if match3:
+                                            return f"{match3.group(1)}.{match3.group(2)}"
+                                        return cabang
+                                        
+                                    df_4217_final['Cabang'] = df_4217_final['Nama Cabang'].apply(format_nama_cabang)
+                                    concatenated_df.append(df_4217_final.rename(columns={'Satuan #':'Satuan'}))
+                                else:
+                                    df_so = pd.read_excel(tmpdirname+'/'+file)
+                                    df_so['CABANG'] = df_so['CABANG'].str.upper().str[:6]
+                                    df_so['Biaya Satuan'] = df_so['Biaya Satuan'].astype(float)
+
+                            df_4217 = pd.concat(concatenated_df)
+                            df_4217['CABANG'] = df_4217['Cabang'].str[-6:]
+                            df_4217 = df_4217.merge(df_so, left_on=['CABANG','Nama Barang'], right_on=['CABANG','NAMA BARANG'], how='left').drop(columns=['CABANG','NAMA BARANG'])
+                            df_4217['#Hasil Stock Opname'] = df_4217['#Hasil Stock Opname'].fillna(0)
+                            df_4217['DEVIASI(Rumus)'] = df_4217['Saldo Akhir'] - df_4217['#Hasil Stock Opname']
+                            df_4217 = df_4217[df_4217['DEVIASI(Rumus)']!=0].reset_index()
+                            df_4217['Tipe Penyesuaian'] = ''
+                            df_4217.loc[df_4217[df_4217['DEVIASI(Rumus)']>0].index, 'Tipe Penyesuaian'] = 'Pengurangan'
+                            df_4217.loc[df_4217[df_4217['DEVIASI(Rumus)']<0].index, 'Tipe Penyesuaian'] = 'Penambahan'
+                            df_4217['DEVIASI(Rumus)'] = df_4217['DEVIASI(Rumus)'].abs()
+
+                            for cab in df_4217['Cabang'].unique():
+                                folder = f"{tmpdirname}/{nama_file}/{df_4217[df_4217['Cabang']==cab]['Nama Cabang'].iloc[0,]}"
+                                if not os.path.exists(folder):
+                                    os.makedirs(folder)
+                                for kat in db_ia['KATEGORI'].unique():
+                                    if kat in ['Raw Material']:
+                                        df_ia = df_4217[(df_4217['Kategori Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER'])) 
+                                                        & ~(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Consume']['FILTER']))
+                                                        & (df_4217['Cabang']==cab)] 
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
+                                        if not df_ia.empty:
+                                            df_ia.to_excel(f'{folder}/{kat}_{cab}_{nama_file}.xlsx', index=False)
+                                    if kat in ['Packaging']:
+                                        df_ia = df_4217[(df_4217['Kategori Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER'])) 
+                                                        & ~(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Consume']['FILTER']))
+                                                        & (df_4217['Cabang']==cab) & ~(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Packaging Usage']['FILTER']))] 
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
+                                        if not df_ia.empty:
+                                            df_ia.to_excel(f'{folder}/{kat} Deviasi_{cab}_{nama_file}.xlsx', index=False)
+                                        df_ia = df_4217[(df_4217['Kategori Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER'])) 
+                                                        & ~(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Consume']['FILTER']))
+                                                        & (df_4217['Cabang']==cab) & (df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']=='Packaging Usage']['FILTER']))] 
+                                        
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
+                                        if not df_ia.empty:
+                                            df_ia.to_excel(f'{folder}/{kat} Usage_{cab}_{nama_file}.xlsx', index=False)
+                                    if kat in ['Consume']:
+                                        df_ia = df_4217[(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER']))
+                                                        & (df_4217['Cabang']==cab)] 
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
+                                        if not df_ia.empty:
+                                            df_ia.to_excel(f'{folder}/{kat}_{cab}_{nama_file}.xlsx', index=False)
+                                    else:         
+                                        df_ia = df_4217[(df_4217['Nama Barang'].isin(db_ia[db_ia['KATEGORI']==kat]['FILTER']))
+                                                        & (df_4217['Cabang']==cab) & (df_4217['Kategori Barang'].isin(non_com))] 
+                                        df_ia[['Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']] = '' 
+                                        df_ia = df_ia.rename(columns={'Kode Barang':'Kode','Satuan':'Unit','DEVIASI(Rumus)':'Kuantitas','Nama Cabang':'Gudang'}).loc[:,['Nama Barang','Kode','Unit','Kuantitas','Biaya Satuan','Gudang','Tipe Penyesuaian','Nama Dept Barang','No Proyek Barang','Keterangan','No. Seri/Produksi Aktif','Merupakan No. Produksi','Nomor Unik/Produksi','Kuantitas Nomor Produksi','Tanggal Kadaluarsa']]
+                                        if not df_ia.empty:
+                                            df_ia.to_excel(f'{folder}/{kat}_{cab}_{nama_file}.xlsx', index=False)
+
+                            folder_path = f'{tmpdirname}/{nama_file}'
+                            zip_buffer = io.BytesIO()
+                            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                                for root, dirs, files in os.walk(folder_path):
+                                    for file in files:
+                                        file_path = os.path.join(root, file)
+                                        arcname = os.path.relpath(file_path, start=folder_path)
+                                        zip_file.write(file_path, arcname)
+
+                            # Pindahkan ke awal buffer agar bisa dibaca
+                            zip_buffer.seek(0)
+                            st.success('Success',icon='✅')
+                            st.download_button(
+                                label="Download Zip",
+                                data=zip_buffer,
+                                file_name=f"REKAP PENYESUAIAN STOK (IA) rev.01_{nama_file}_{get_current_time_gmt7()}.zip",
                                 mime="application/zip"
                             )
                         
