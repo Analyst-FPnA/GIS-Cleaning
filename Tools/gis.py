@@ -25,7 +25,7 @@ else:
 with col[0]:
     with st.container(border=True):
         
-        selected_option = st.selectbox("Pilih Modul", ['13.01','13.10','13.16','13.22','13.31','13.33','13.55','13.66','22.05','22.16','22.19','32.07','32.15','32.23','32.24','32.43','41.01','41.04','41.04.B','41.09','42.02','42.05','42.06','42.08','42.15','42.17','42.17 (Rev1)','42.18','44.06','44.08','51.01','99.01'])
+        selected_option = st.selectbox("Pilih Modul", ['13.01','13.10','13.16','13.22','13.31','13.33','13.55','13.66','22.05','22.16','22.19','32.07','32.15','32.23','32.24','32.43','41.01','41.04','41.04.B','41.09','42.02','42.05','42.06','42.08','42.15','42.17','42.17 rev.01','42.17 rev.02','42.18','44.06','44.08','51.01','99.01'])
         uploaded_file = st.file_uploader("Pilih File", type="xlsx", accept_multiple_files=True)
 
         st.session_state.process = False
@@ -835,7 +835,7 @@ with col[1]:
                                     mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                                 )
 
-                            if selected_option=='42.17 (Rev1)':
+                            if selected_option=='42.17 rev.01':
                                 concatenated_df = []
                                 for file in uploaded_file:
                                     df_4217     =   pd.read_excel(file, header=4).fillna('')
@@ -900,9 +900,70 @@ with col[1]:
                                 st.download_button(
                                     label="Download",
                                     data=excel_data,
-                                    file_name=f'42.17 (Rev1)_{get_current_time_gmt7()}.xlsx',
+                                    file_name=f'42.17 rev.01_{get_current_time_gmt7()}.xlsx',
                                     mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                                )   
+                                )
+
+                            if selected_option=='42.17 rev.02':
+                                concatenated_df = []
+                                for file in uploaded_file:
+                                    df_4217     =   pd.read_excel(file, header=4).fillna('')
+                                    df_4217 = df_4217.drop(columns=[x for x in df_4217.reset_index().T[(df_4217.reset_index().T[1]=='')].index if 'Unnamed' in x])
+                                    df_4217.columns = df_4217.T.reset_index()['index'].apply(lambda x: np.nan if 'Unnamed' in x else x).ffill().values
+                                    df_4217 = df_4217.iloc[:,:-1]
+                                    
+                                    df_4217_final =pd.melt(df_4217, id_vars=['Kode Barang', 'Nama Barang','Kategori Barang','Satuan #'],
+                                                        value_vars=df_4217.columns[4:].values,
+                                                        var_name='Nama Cabang', value_name='Saldo Akhir').reset_index(drop=True)
+                                    
+                                    df_4217_final['Kode Barang'] = df_4217_final['Kode Barang'].astype('int')
+                                    df_4217_final['Saldo Akhir'] = df_4217_final['Saldo Akhir'].astype('float')
+                                    
+                                    df_4217_final=df_4217_final.rename(columns={'Satuan #': 'Satuan'}).loc[:,["Kategori Barang","Kode Barang","Nama Barang","Satuan","Saldo Akhir","Nama Cabang"]]
+                                    df_4217_final.insert(0, 'No. Urut', range(1, len(df_4217_final) + 1))
+                                    
+                                    def format_nama_cabang(cabang):
+                                        match1 = re.match(r"^(\d+)\.\d+-G\.([A-Z0-9]+)\..*\(.*\)\s*$", cabang)
+                                        if match1:
+                                            return f"{match1.group(1)}.{match1.group(2)}"
+                                        match4 = re.match(r"^(\d+)\.\d+-G\.([A-Z]+)\.[A-Z]+\s*\(.*?\)$", cabang)
+                                        if match4 and cabang.startswith(('5',"2909")):
+                                            return f"{match4.group(1)}.{match4.group(2)}"
+                                        match5 = re.match(r"^(\d+)\.\d+-G\..*\(([^()]*)\)\s*$", cabang)
+                                        if match5:
+                                            return f"{match5.group(1)}.{match5.group(2)}"
+                                        match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
+                                        if match2:
+                                            return f"{match2.group(1)}.{match2.group(2)}"
+                                        match3 = re.match(r"^([A-Z]\.\d+)\.[^(]+\s*\((.*?)\)$", cabang)
+                                        if match3:
+                                            return f"{match3.group(1)}.{match3.group(2)}"
+                                        return cabang
+                                    
+                                    def format_nama_cabang2(cabang):
+                                        match1 = re.match(r"\((\d+),\s*([A-Z]+)\)", cabang)
+                                        if match1:
+                                            return f"{match1.group(1)}.{cabang.split('-')[0].split('.')[-1]}.{match1.group(2)}"
+                                        else:
+                                            match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
+                                            if match2:
+                                                return f"{match2.group(1)}.{cabang.split('-')[0].split('.')[-1]}.{match2.group(2)}"
+                                            else:
+                                                return cabang
+                                    
+                                    df_4217_final['Cabang'] = df_4217_final['Nama Cabang'].replace({r'\s*\(NON-AKTIF\)': ''}, regex=True).apply(format_nama_cabang)
+                                    df_4217_final['Cabang.2'] = df_4217_final['Nama Cabang'].apply(format_nama_cabang2)
+                                    concatenated_df.append(df_4217_final.drop(columns=['Nama Cabang']))
+
+                                concatenated_df = pd.concat(concatenated_df, ignore_index=True)
+                                excel_data = to_excel(concatenated_df)
+                                st.success('Success',icon='✅')
+                                st.download_button(
+                                    label="Download",
+                                    data=excel_data,
+                                    file_name=f'42.17 rev.02_{get_current_time_gmt7()}.xlsx',
+                                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                )
                                 
                             if selected_option == '42.18':
                                 concatenated_df = []
