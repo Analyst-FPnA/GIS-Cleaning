@@ -349,6 +349,7 @@ with col[1]:
                                     df_4217     =   pd.read_excel(tmpdirname+'/'+file, header=4).fillna('')
                                     df_4217 = df_4217.drop(columns=[x for x in df_4217.reset_index().T[(df_4217.reset_index().T[1]=='')].index if 'Unnamed' in x])
                                     df_4217.columns = df_4217.T.reset_index()['index'].apply(lambda x: np.nan if 'Unnamed' in x else x).ffill().values
+                                    df_4217 = df_4217.iloc[:,:-1]
                                     
                                     df_4217_final = pd.melt(df_4217, id_vars=['Kode Barang', 'Nama Barang','Kategori Barang','Satuan #'],
                                                         value_vars=df_4217.columns[4:].values,
