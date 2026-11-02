@@ -869,15 +869,22 @@ with col[1]:
                                     df_4217_final.insert(0, 'No. Urut', range(1, len(df_4217_final) + 1))
                                     
                                     def format_nama_cabang(cabang):
-                                        match1 = re.match(r"\((\d+),\s*([A-Z]+)\)", cabang)
+                                        match1 = re.match(r"^(\d+)\.\d+-G\.([A-Z0-9]+)\..*\(.*\)\s*$", cabang)
                                         if match1:
                                             return f"{match1.group(1)}.{match1.group(2)}"
-                                        else:
-                                            match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
-                                            if match2:
-                                                return f"{match2.group(1)}.{match2.group(2)}"
-                                            else:
-                                                return cabang
+                                        match4 = re.match(r"^(\d+)\.\d+-G\.([A-Z]+)\.[A-Z]+\s*\(.*?\)$", cabang)
+                                        if match4 and cabang.startswith(('5',"2909")):
+                                            return f"{match4.group(1)}.{match4.group(2)}"
+                                        match5 = re.match(r"^(\d+)\.\d+-G\..*\(([^()]*)\)\s*$", cabang)
+                                        if match5:
+                                            return f"{match5.group(1)}.{match5.group(2)}"
+                                        match2 = re.match(r"^(\d+)\..*?\((.*?)\)$", cabang)
+                                        if match2:
+                                            return f"{match2.group(1)}.{match2.group(2)}"
+                                        match3 = re.match(r"^([A-Z]\.\d+)\.[^(]+\s*\((.*?)\)$", cabang)
+                                        if match3:
+                                            return f"{match3.group(1)}.{match3.group(2)}"
+                                        return cabang
                                     
                                     def format_nama_cabang2(cabang):
                                         match1 = re.match(r"\((\d+),\s*([A-Z]+)\)", cabang)
