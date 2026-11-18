@@ -1300,9 +1300,14 @@ with col[1]:
                             dfs = []
                             for file in os.listdir(tmpdirname):
                                 df_mp = pd.read_excel(os.path.join(tmpdirname, file),header=0)
-                                df_mp_1 = pd.read_excel(os.path.join(tmpdirname, file),header=6)
-                                df_mp_1 = df_mp_1[[f for f in df_mp_1 if 'Unnamed' not in f]].dropna()
-                                df_mp_1['Keterangan'] = df_mp.loc[df_mp[df_mp['Unnamed: 1']=='Keterangan'].index+1,'Unnamed: 1'].values[0]
+                                df_mp_1 = df_mp.copy()
+                                df_mp_1.columns = df_mp_1.loc[df_mp_1[df_mp_1['Unnamed: 1'].fillna('').str.startswith('B')].index[0]-1,:].fillna('').values
+                                df_mp_1 = df_mp_1[[f for f in df_mp_1.columns if f !='']]
+                                df_mp_1 = df_mp_1[(df_mp_1['Produk'].notna()) & (df_mp_1['Produk']!='Produk')]
+                                try:
+                                    df_mp_1['Keterangan'] = df_mp.loc[df_mp[df_mp['Unnamed: 1']=='Keterangan'].index+1,'Unnamed: 1'].values[0]
+                                except:
+                                    df_mp_1['Keterangan'] = ''
                                 df_mp_1.insert(0,'Rencana Produksi',df_mp.loc[df_mp['Unnamed: 4'].fillna('').str.startswith('MP'),'Unnamed: 4'].values[0])
                                 dfs.append(df_mp_1)
                             df_table = pd.concat(dfs)
