@@ -93,7 +93,7 @@ col = st.columns([2,1])
 df_sj = []
 with col[0]:
     with st.container(border=True):
-        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP PENYESUAIAN INPUTAN IA rev.01','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP PENERIMAAN BARANG','REKAP BARANG MASUK','REKAP SALES ESB & GIS','REKAP SALES ESB & GIS rev.01','PENYESUAIAN IA','REPORT COM RESTO','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)'])
+        selected_option = st.selectbox("Pilih Modul", ['REKAP MENTAH','REKAP PENYESUAIAN INPUTAN IA','REKAP PENYESUAIAN INPUTAN IA rev.01','REKAP DATA 42.02','REKAP DATA BOM-DEVIASI','REKAP PENERIMAAN BARANG','REKAP BARANG MASUK','REKAP SALES ESB & GIS','REKAP SALES ESB & GIS rev.01','PENYESUAIAN IA','REPORT COM RESTO','OCR-SJ','PROMIX','WEBSMART (DINE IN/TAKEAWAY)','RENCANA PRODUKSI'])
         uploaded_file = st.file_uploader("Pilih File", type=["zip",'xlsx'])
     
         if selected_option == 'REKAP MENTAH':
@@ -1292,7 +1292,28 @@ with col[1]:
                                 file_name=f'REKAP BARANG MASUK_{get_current_time_gmt7()}.xlsx',
                                 mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                             )
-            
+                            
+                    if selected_option == 'RENCANA PRODUKSI':
+                        with tempfile.TemporaryDirectory() as tmpdirname:
+                            with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+                                zip_ref.extractall(tmpdirname)
+                            dfs = []
+                            for file in os.listdir(tmpdirname):
+                                df_mp = pd.read_excel(os.path.join(tmpdirname, file),header=0)
+                                df_mp_1 = pd.read_excel(os.path.join(tmpdirname, file),header=6)
+                                df_mp_1 = df_mp_1[[f for f in df_mp_1 if 'Unnamed' not in f]].dropna()
+                                df_mp_1['Keterangan'] = df_mp.loc[df_mp[df_mp['Unnamed: 1']=='Keterangan'].index+1,'Unnamed: 1'].values[0]
+                                df_mp_1.insert(0,'Rencana Produksi',df_mp.loc[df_mp['Unnamed: 4'].fillna('').str.startswith('MP'),'Unnamed: 4'].values[0])
+                                dfs.append(df_mp_1)
+                            df_table = pd.concat(dfs)
+                            st.success('Success',icon='✅')
+                            st.download_button(
+                                label="Download",
+                                data=to_excel(df_table),
+                                file_name=f'RENCANA PRODUKSI_{get_current_time_gmt7()}.xlsx',
+                                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            )
+
             except Exception as e:
                 st.error('Failed', icon='🛑')
                 try:
